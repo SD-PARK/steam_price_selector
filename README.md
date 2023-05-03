@@ -1,1 +1,1 @@
-# steam_price_selector
+# steam_spec_check
