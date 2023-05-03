@@ -16,5 +16,5 @@ const PORT = config.PORT;
 const router = require('./api/testAPI');
 app.use('/', router);
 
-const gpu = require('./data/gpu');
+const gpu = require('./data/gpuUpdate');
 server.listen(PORT, () => { console.log('Server listen on PORT', PORT); });

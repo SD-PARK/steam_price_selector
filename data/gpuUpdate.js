@@ -3,7 +3,7 @@ const cheerio = require('cheerio');
 const fs = require('fs');
 
 /** PassMark GPU Data 크롤링 */
-const getHtml = async () => {
+module.exports = async () => {
     try {
         const html = await axios.get('https://www.videocardbenchmark.net/gpu_list.php');
         let ulList = [];
@@ -29,8 +29,3 @@ const updateJson = (gpu_list) => {
     const gpuJSON = JSON.stringify(gpu_list);
     fs.writeFileSync('./data/gpu.json', gpuJSON);
 }
-
-getHtml();
-const jsonFile = fs.readFileSync('./data/gpu.json');
-const jsonData = JSON.parse(jsonFile);
-module.exports = jsonData;
