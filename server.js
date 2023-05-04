@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
-const config = require('./config');
+const config = require('./config/config');
 
 const PORT = config.PORT;
 
@@ -13,8 +13,8 @@ const PORT = config.PORT;
 // }
 // app.use(cors(corsOptions));
 
-const router = require('./api/testAPI');
+const router = require('./routes/testAPI');
 app.use('/', router);
 
-const gpu = require('./data/gpuUpdate');
+const gpu = require('./config/gpuUpdate');
 server.listen(PORT, () => { console.log('Server listen on PORT', PORT); });
