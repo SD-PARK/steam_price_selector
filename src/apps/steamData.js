@@ -62,17 +62,16 @@ steam.getAppList().then(apps => {
         
         // 다음 호출을 예약하고, promises 배열에 프로미스를 추가함, 호출을 마치면 JSON 파일에 저장
         if(endIndex + batchSize < appIDs.length) {
-            setTimeout(() => getNextBatch(endIndex), interval);
+            setTimeout(() => getNextBatch(endIndex), interval).then(() => { console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt); });
         } else if (endIndex < appIDs.length) {
             setTimeout(() => getNextBatch(endIndex).then(() => { useJSON.writeJSON(appSystemRequirements, 'game.json'); }), interval);
         } 
         
-        console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt);
         return Promise.all(promises); // promises 배열을 반환함
     };
 
     // 호출
-    getNextBatch(apps.length - 201)
+    getNextBatch(apps.length - 201);
 }).catch(error => {
     console.log(error);
 });

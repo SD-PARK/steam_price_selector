@@ -13,7 +13,7 @@ const PORT = config.PORT;
 // }
 // app.use(cors(corsOptions));
 
-const router = require('./routes/testAPI');
+const router = require('./src/routes/testAPI');
 app.use('/', router);
 
 const gpu = require('./src/apps/gpuUpdate');
