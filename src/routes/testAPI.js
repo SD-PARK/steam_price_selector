@@ -1,7 +1,7 @@
 const router = require('express').Router();
-const useJSON = require('../config/useJSON');
-// require('../config/gpuUpdate')(); // GPU Data 갱신
-require('../config/steamData'); // Steam Data 갱신
+const useJSON = require('../apps/useJSON');
+// require('../apps/gpuUpdate')(); // GPU Data 갱신
+require('../apps/steamData'); // Steam Data 갱신
 
 router.get('/', (req, res) => {
     // res.send('This Message from the Router.');
