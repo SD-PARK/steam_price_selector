@@ -4,7 +4,7 @@ const steam = new SteamAPI(API_KEY);
 const useJSON = require('./useJSON');
 
 const batchSize = 200; // 한 번에 처리할 게임 개수
-const interval = 5 * 60 * 1000; // API 호출 간격 (밀리초 단위)
+const interval = (5 * 60 * 1000) + 1000; // API 호출 간격 (밀리초 단위)
 let batchs; // setTimeout 예약용 변수
 let appIDs = []; // 모든 게임의 app ID
 let appNames = []; // 모든 게임의 이름
@@ -55,6 +55,10 @@ async function getNextBatch(startIndex) {
     // 'Promise.all'을 사용할 때 'map' 함수를 사용해 배열을 순회하며 각 요소를 비동기적으로 처리할 수 있지만, 내부적으로는 병렬적으로 처리되기 때문에 결과의 순서가 보장되지 않음.
     // 따라서 전체 게임 리스트(games.json)과 상세 데이터(gameData.json)의 배열 순서를 보장하기 위해 for of 사용.
     for (const id of batchIDs) {
+        // 오류 검사
+        if (appSystemRequirements.find((app) => {app.id === id}))
+            throw `\n\n\n\n\n${id} is Duplicate value!!!!!\n\n\n\n\n`;
+
         await steam.getGameDetails(id)
         .then(details => {
             const minimum = details.pc_requirements.minimum;
