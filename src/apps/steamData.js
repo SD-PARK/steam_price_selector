@@ -13,7 +13,52 @@ let appSystemRequirements = []; // 모든 게임의 시스템 요구사항
 /** 신규 게임 데이터를 업데이트합니다. */
 const updateGameData = async () => {
     await getAppList();
-    await writeGameDataContinue();
+    appSystemRequirements = await useJSON.readJSON('gameData.json');
+    const omissions = await omissionCheck();
+    for (const id of omissions) {
+        // 오류 검사
+        if (appSystemRequirements.find((app) => {app.id === id})) {
+            console.log(`\n\n\n\n\n${id} is Duplicate value!!!!!\n\n\n\n\n`);
+            continue;
+        }
+
+        await steam.getGameDetails(id)
+        .then(details => {
+            const minimum = details.pc_requirements.minimum;
+            const recommended = details.pc_requirements.recommended;
+            const minimumRequirementsObject = extractData(minimum);
+            const recommendedRequirementsObject = extractData(recommended);
+
+            appSystemRequirements.push({
+                name: appNames[appIDs.indexOf(id)],
+                id: id,
+                is_free: details.is_free,
+                supported_languages: details.supported_languages,
+                header_image: details.header_image,
+                requirements: {
+                    minimum: minimumRequirementsObject,
+                    recommended: recommendedRequirementsObject
+                },
+                price_overview: details.price_overview,
+                categories: details.categories,
+                genres: details.genres
+            });
+            console.log('Push Completed! app ID', id);
+        })
+        .catch(error => {
+            if (error.message === 'No app found') {
+                appSystemRequirements.push({
+                    name: appNames[appIDs.indexOf(id)],
+                    id: id,
+                    requirements: {},
+                });
+                console.log(`Invalid app ID ${id}, skipping...`);
+            } else {
+                throw error;
+            }
+        });
+    }
+    await useJSON.writeJSON(appSystemRequirements, 'gameData.json');
 }
 
 /** 게임 데이터를 전체 게임 리스트와 비교해 끊긴 부분부터 이어서 불러와 저장 */
@@ -36,7 +81,6 @@ const writeGameDataContinue = async () => {
 const omissionCheck = async () => {
     const games = await useJSON.readJSON('games.json');
     appIDs = games.map(game => game.appid);
-
     const gameData = await useJSON.readJSON('gameData.json');
     const compareIDs = gameData.map(app => app.id);
 
@@ -48,6 +92,7 @@ const omissionCheck = async () => {
     });
 
     console.log('omission List:\n', omissionList);
+    return omissionList;
 }
 
 /** Steam에서 서비스 중인 모든 게임 리스트를 가져옵니다. */
