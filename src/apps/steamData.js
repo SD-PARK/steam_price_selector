@@ -12,71 +12,74 @@ let appSystemRequirements = []; // 모든 게임의 시스템 요구사항
 let cnt = 0;
 let fail_cnt = 0;
 
-// Steam에서 게임 리스트를 가져옴
-steam.getAppList().then(apps => {
-    appIDs = apps.map(app => app.appid);
-    appNames = apps.map(app => app.name);
+// 호출
+await getAppList();
+await getNextBatch(apps.length - 201);
 
-    useJSON.writeJSON(apps, 'games.json');
-
-    // 일정 시간 후 다음 API를 호출
-    const getNextBatch = (startIndex) => {
-        const endIndex = Math.min(startIndex + batchSize, appIDs.length);
-        const batchIDs = appIDs.slice(startIndex, endIndex);
-
-        // API 호출
-        const promises = batchIDs.map(id => {
-            return steam.getGameDetails(id)
-            .then(details => {
-                const minimum = details.pc_requirements.minimum;
-                const recommended = details.pc_requirements.recommended;
-                const minimumRequirementsObject = extractData(minimum);
-                const recommendedRequirementsObject = extractData(recommended);
+/** Steam에서 게임 리스트를 가져옴 */
+const getAppList = async () => {
+    return steam.getAppList().then(async apps => {
+        appIDs = apps.map(app => app.appid);
+        appNames = apps.map(app => app.name);
     
+        await useJSON.writeJSON(apps, 'games.json');
+    }).catch(error => {
+        console.log(error);
+    });
+}
+
+// 일정 시간 후 다음 API를 호출
+const getNextBatch = (startIndex) => {
+    const endIndex = Math.min(startIndex + batchSize, appIDs.length);
+    const batchIDs = appIDs.slice(startIndex, endIndex);
+
+    // API 호출
+    const promises = batchIDs.map(id => {
+        return steam.getGameDetails(id)
+        .then(details => {
+            const minimum = details.pc_requirements.minimum;
+            const recommended = details.pc_requirements.recommended;
+            const minimumRequirementsObject = extractData(minimum);
+            const recommendedRequirementsObject = extractData(recommended);
+
+            appSystemRequirements.push({
+                name: appNames[appIDs.indexOf(id)],
+                id: id,
+                requirements: {
+                    minimum: minimumRequirementsObject,
+                    recommended: recommendedRequirementsObject
+                }
+            });
+            cnt += 1;
+            console.log(appSystemRequirements[appSystemRequirements.length - 1]);
+        })
+        .catch(error => {
+            if (error.message === 'No app found') {
                 appSystemRequirements.push({
                     name: appNames[appIDs.indexOf(id)],
                     id: id,
-                    requirements: {
-                        minimum: minimumRequirementsObject,
-                        recommended: recommendedRequirementsObject
-                    }
+                    requirements: {}
                 });
-                cnt += 1;
-                console.log(appSystemRequirements[appSystemRequirements.length - 1]);
-            })
-            .catch(error => {
-                if (error.message === 'No app found') {
-                    appSystemRequirements.push({
-                        name: appNames[appIDs.indexOf(id)],
-                        id: id,
-                        requirements: {}
-                    });
-                    fail_cnt += 1;
-                    console.log(`Invalid app ID ${id}, skipping...`);
-                } else {
-                    console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt);
-                    throw error;
-                }
-            });
+                fail_cnt += 1;
+                console.log(`Invalid app ID ${id}, skipping...`);
+            } else {
+                console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt);
+                throw error;
+            }
         });
-        
-        // 다음 호출을 예약하고, promises 배열에 프로미스를 추가함, 호출을 마치면 JSON 파일에 저장
-        if(endIndex + batchSize < appIDs.length) {
-            setTimeout(() => getNextBatch(endIndex), interval).then(() => { console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt); });
-        } else if (endIndex < appIDs.length) {
-            setTimeout(() => getNextBatch(endIndex).then(() => { useJSON.writeJSON(appSystemRequirements, 'game.json'); }), interval);
-        } 
-        
-        return Promise.all(promises); // promises 배열을 반환함
-    };
+    });
+    
+    // 다음 호출을 예약하고, promises 배열에 프로미스를 추가함, 호출을 마치면 JSON 파일에 저장
+    if(endIndex + batchSize < appIDs.length) {
+        setTimeout(() => getNextBatch(endIndex), interval).then(() => { console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt); });
+    } else if (endIndex < appIDs.length) {
+        setTimeout(() => getNextBatch(endIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'game.json'); }), interval);
+    } 
+    
+    return Promise.all(promises); // promises 배열을 반환함
+};
 
-    // 호출
-    getNextBatch(apps.length - 201);
-}).catch(error => {
-    console.log(error);
-});
-
-/** 문자열에서 필요한 정보 추출 */
+/** 시스템 요구사항에서 필요한 정보 추출 */
 const extractData = (requirements) => {
     if (!requirements) return {};
 
