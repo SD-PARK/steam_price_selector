@@ -5,25 +5,35 @@ const useJSON = require('./useJSON');
 
 const batchSize = 200; // 한 번에 처리할 게임 개수
 const interval = 5 * 60 * 1000; // API 호출 간격 (밀리초 단위)
+let batchs; // setTimeout 예약용 변수
 let appIDs = []; // 모든 게임의 app ID
 let appNames = []; // 모든 게임의 이름
 let appSystemRequirements = []; // 모든 게임의 시스템 요구사항
-let cnt = 0;
-let fail_cnt = 0;
 
-const writeDataContinue = async () => {
+/** 신규 게임 데이터를 업데이트합니다. */
+const updateGameData = async () => {
+    await getAppList();
+    await writeGameDataContinue();
+}
+
+/** 게임 데이터를 전체 게임 리스트와 비교해 끊긴 부분부터 이어서 불러와 저장 */
+const writeGameDataContinue = async () => {
     const games = await useJSON.readJSON('games.json');
     appIDs = games.map(game => game.appid);
     appNames = games.map(game => game.name);
 
-    appSystemRequirements = await useJSON.readJSON('game.json');
+    appSystemRequirements = await useJSON.readJSON('gameData.json');
     
     const startIndex = appSystemRequirements.length;
-    await getNextBatch(startIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'game.json'); });
+    if (startIndex < appIDs.length) {
+        await getNextBatch(startIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'gameData.json'); });
+    } else {
+
+    }
 }
 
 /** Steam에서 서비스 중인 모든 게임 리스트를 가져옵니다. */
-const getAppList = async () => {
+async function getAppList() {
     return steam.getAppList().then(async apps => {
         await useJSON.writeJSON(apps, 'games.json');
     }).catch(error => {
@@ -31,14 +41,21 @@ const getAppList = async () => {
     });
 }
 
-/** 게임의 시스템 요구 사항을 불러와 game.json에 저장 !!호출 전 반드시 appIDs와 appNames를 초기화할 것 */
-const getNextBatch = (startIndex) => {
+/** 게임의 상세 데이터를 불러와 gameData.json에 저장합니다. !!호출 전 반드시 appIDs와 appNames를 초기화할 것!! */
+async function getNextBatch(startIndex) {
     const endIndex = Math.min(startIndex + batchSize, appIDs.length);
     const batchIDs = appIDs.slice(startIndex, endIndex);
+    
+    // 다음 호출을 예약, 호출을 마치면 JSON 파일에 저장
+    if (endIndex < appIDs.length) {
+        batchs = setTimeout(() => getNextBatch(endIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'gameData.json'); }), interval);
+    }
 
     // API 호출
-    const promises = batchIDs.map(id => {
-        return steam.getGameDetails(id)
+    // 'Promise.all'을 사용할 때 'map' 함수를 사용해 배열을 순회하며 각 요소를 비동기적으로 처리할 수 있지만, 내부적으로는 병렬적으로 처리되기 때문에 결과의 순서가 보장되지 않음.
+    // 따라서 전체 게임 리스트(games.json)과 상세 데이터(gameData.json)의 배열 순서를 보장하기 위해 for of 사용.
+    for (const id of batchIDs) {
+        await steam.getGameDetails(id)
         .then(details => {
             const minimum = details.pc_requirements.minimum;
             const recommended = details.pc_requirements.recommended;
@@ -48,40 +65,36 @@ const getNextBatch = (startIndex) => {
             appSystemRequirements.push({
                 name: appNames[appIDs.indexOf(id)],
                 id: id,
+                is_free: details.is_free,
+                supported_languages: details.supported_languages,
+                header_image: details.header_image,
                 requirements: {
                     minimum: minimumRequirementsObject,
                     recommended: recommendedRequirementsObject
-                }
+                },
+                price_overview: details.price_overview,
+                categories: details.categories,
+                genres: details.genres
             });
-            cnt += 1;
-            console.log(appSystemRequirements[appSystemRequirements.length - 1]);
+            console.log('Push Completed! app ID', id);
         })
         .catch(error => {
             if (error.message === 'No app found') {
                 appSystemRequirements.push({
                     name: appNames[appIDs.indexOf(id)],
                     id: id,
-                    requirements: {}
+                    requirements: {},
                 });
-                fail_cnt += 1;
                 console.log(`Invalid app ID ${id}, skipping...`);
             } else {
-                console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt);
                 throw error;
             }
         });
-    });
-    
-    // 다음 호출을 예약하고, promises 배열에 프로미스를 추가함, 호출을 마치면 JSON 파일에 저장
-    if (endIndex < appIDs.length) {
-        setTimeout(() => getNextBatch(endIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'game.json'); }), interval);
-    } 
-    
-    return Promise.all(promises); // promises 배열을 반환함
+    }
 };
 
 /** 시스템 요구사항에서 필요한 정보 추출 */
-const extractData = (requirements) => {
+function extractData(requirements) {
     if (!requirements) return {};
 
     const OSMatch = requirements.match(/<strong>OS:<\/strong>(.*?)<br>/);
@@ -114,5 +127,7 @@ const extractData = (requirements) => {
     return RequirementsObject;
 }
 
-getAppList();
-writeDataContinue();
+module.exports = {
+    updateGameData,
+    writeGameDataContinue,
+}

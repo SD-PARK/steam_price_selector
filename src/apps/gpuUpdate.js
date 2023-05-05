@@ -17,7 +17,7 @@ module.exports = async () => {
                 value: $(element).find('td:nth-child(2)').text()
             }
         });
-        useJSON.writeJSON(ulList, 'gpu.json');
+        useJSON.writeJSON(ulList, 'gpuData.json');
     } catch {
         console.error(error);
     }
