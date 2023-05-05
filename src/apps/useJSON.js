@@ -4,7 +4,7 @@ module.exports = {
     /** JSON 파일 덮어쓰기 */
     writeJSON: async function(apps, fileName) {
         const json = JSON.stringify(apps);
-        await fs.promises.writeFileSync('./data/' + fileName, json);
+        await fs.promises.writeFile('./data/' + fileName, json);
         console.log("Write Completed!:", fileName);
     },
 
@@ -17,7 +17,7 @@ module.exports = {
 
     /** JSON 파일 읽어오기 */
     readJSON: async function(fileName) {
-        const jsonFile = await fs.promises.readFileSync('./data/' + fileName);
+        const jsonFile = await fs.promises.readFile('./data/' + fileName);
         return JSON.parse(jsonFile);
     }
 }

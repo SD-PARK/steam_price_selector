@@ -5,30 +5,33 @@ const useJSON = require('./useJSON');
 
 const batchSize = 200; // 한 번에 처리할 게임 개수
 const interval = 5 * 60 * 1000; // API 호출 간격 (밀리초 단위)
-const delay = 10 * 60 * 1000; // API 호출 제한 시간 (밀리초 단위)
 let appIDs = []; // 모든 게임의 app ID
 let appNames = []; // 모든 게임의 이름
 let appSystemRequirements = []; // 모든 게임의 시스템 요구사항
 let cnt = 0;
 let fail_cnt = 0;
 
-// 호출
-await getAppList();
-await getNextBatch(apps.length - 201);
+const writeDataContinue = async () => {
+    const games = await useJSON.readJSON('games.json');
+    appIDs = games.map(game => game.appid);
+    appNames = games.map(game => game.name);
 
-/** Steam에서 게임 리스트를 가져옴 */
+    appSystemRequirements = await useJSON.readJSON('game.json');
+    
+    const startIndex = appSystemRequirements.length;
+    await getNextBatch(startIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'game.json'); });
+}
+
+/** Steam에서 서비스 중인 모든 게임 리스트를 가져옵니다. */
 const getAppList = async () => {
     return steam.getAppList().then(async apps => {
-        appIDs = apps.map(app => app.appid);
-        appNames = apps.map(app => app.name);
-    
         await useJSON.writeJSON(apps, 'games.json');
     }).catch(error => {
         console.log(error);
     });
 }
 
-// 일정 시간 후 다음 API를 호출
+/** 게임의 시스템 요구 사항을 불러와 game.json에 저장 !!호출 전 반드시 appIDs와 appNames를 초기화할 것 */
 const getNextBatch = (startIndex) => {
     const endIndex = Math.min(startIndex + batchSize, appIDs.length);
     const batchIDs = appIDs.slice(startIndex, endIndex);
@@ -70,9 +73,7 @@ const getNextBatch = (startIndex) => {
     });
     
     // 다음 호출을 예약하고, promises 배열에 프로미스를 추가함, 호출을 마치면 JSON 파일에 저장
-    if(endIndex + batchSize < appIDs.length) {
-        setTimeout(() => getNextBatch(endIndex), interval).then(() => { console.log('cnt:', cnt, '\nfail_cnt:', fail_cnt); });
-    } else if (endIndex < appIDs.length) {
+    if (endIndex < appIDs.length) {
         setTimeout(() => getNextBatch(endIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'game.json'); }), interval);
     } 
     
@@ -113,3 +114,5 @@ const extractData = (requirements) => {
     return RequirementsObject;
 }
 
+getAppList();
+writeDataContinue();
