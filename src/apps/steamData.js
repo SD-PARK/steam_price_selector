@@ -32,6 +32,24 @@ const writeGameDataContinue = async () => {
     }
 }
 
+/** 누락된 데이터 검사 */
+const omissionCheck = async () => {
+    const games = await useJSON.readJSON('games.json');
+    appIDs = games.map(game => game.appid);
+
+    const gameData = await useJSON.readJSON('gameData.json');
+    const compareIDs = gameData.map(app => app.id);
+
+    let omissionList = [];
+
+    appIDs.map(appID => {
+        if (!compareIDs.find(compareID => {compareID === appID}))
+            omissionList.push(appID);
+    });
+
+    console.log('omission List:\n', omissionList);
+}
+
 /** Steam에서 서비스 중인 모든 게임 리스트를 가져옵니다. */
 async function getAppList() {
     return steam.getAppList().then(async apps => {
@@ -134,4 +152,5 @@ function extractData(requirements) {
 module.exports = {
     updateGameData,
     writeGameDataContinue,
+    omissionCheck
 }

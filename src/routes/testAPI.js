@@ -2,6 +2,7 @@ const router = require('express').Router();
 const useJSON = require('../apps/useJSON');
 // require('../apps/gpuUpdate')(); // GPU Data 갱신
 require('../apps/steamData').writeGameDataContinue(); // Steam Data 갱신
+// require('../apps/steamData').omissionCheck();
 
 router.get('/', async (req, res) => {
     // res.send('This Message from the Router.');
