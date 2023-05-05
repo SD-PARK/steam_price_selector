@@ -28,7 +28,7 @@ const writeGameDataContinue = async () => {
     if (startIndex < appIDs.length) {
         await getNextBatch(startIndex).then(async () => { await useJSON.writeJSON(appSystemRequirements, 'gameData.json'); });
     } else {
-
+        console.log('GameData Upload Completed!');
     }
 }
 
