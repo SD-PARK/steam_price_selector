@@ -144,16 +144,13 @@ async function getNextBatch(startIndex) {
             console.log('Push Completed! app ID', id);
         })
         .catch(error => {
-            if (error.message === 'No app found') {
-                appInfos.push({
-                    name: appNames[appIDs.indexOf(id)],
-                    id: id,
-                    requirements: {},
-                });
-                console.log(`Invalid app ID ${id}, skipping...`);
-            } else {
-                throw error;
-            }
+            appInfos.push({
+                name: appNames[appIDs.indexOf(id)],
+                id: id,
+                requirements: {},
+            });
+            if (error.message === 'No app found') console.log(`Invalid app ID ${id}, skipping...`);
+            else console.log(error);
         });
     }
 };
