@@ -125,12 +125,13 @@ async function getNextBatch(startIndex) {
             { name: 'birthtime', value: '946393201', url: 'https://store.steampowered.com' }
         ]
     );
+
     const promises = batchIDs.map(async (id, index) => {
         let appInfo = {};
 
         // ID, NAME
         appInfo.id = id;
-        appInfo.name = appNames[appIDs.indexOf(id)];
+        appInfo.name = appNames[index];
         
         const page = await browserContext.newPage();
         try {
@@ -162,35 +163,36 @@ async function getNextBatch(startIndex) {
                 }
     
                 // Requirement
+                
+                // const minimum = details.pc_requirements.minimum;
+                // const recommended = details.pc_requirements.recommended;
+                // const minimumRequirementsObject = extractData(minimum);
+                // const recommendedRequirementsObject = extractData(recommended);
+
+                //     price_overview: details.price_overview,
+                //     categories: details.categories,
+                //     genres: details.genres
             }
-            console.log(appInfo);
             console.log('Push Completed! app ID', id);
         } catch (error) {
-            console.log(appInfo);
-            console.error(`Error occurred while processing app ID ${id}: ${error}`);
+            if (error.toString().includes('page.goto')) {
+                throw `Error occurred while processing app ID ${id}: ${error}`;
+            } else {
+                console.error(`Error occurred while processing app ID ${id}: ${error}`);
+            }
         } finally {
             appInfos.push(appInfo);
+            console.log(appInfo);
             await page.close();
         }
     });
-
-    // // 브라우저 종료
-    // await browser.close()
 
     // 다음 호출을 예약
     if (endIndex < appIDs.length) {
         setTimeout(() => getNextBatch(endIndex).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); }), interval);
     }
 
-    return Promise.all(promises);
-    // const minimum = details.pc_requirements.minimum;
-    // const recommended = details.pc_requirements.recommended;
-    // const minimumRequirementsObject = extractData(minimum);
-    // const recommendedRequirementsObject = extractData(recommended);
-
-    //     price_overview: details.price_overview,
-    //     categories: details.categories,
-    //     genres: details.genres
+    return Promise.all(promises).then(async () => { await browser.close(); });
 };
 
 /** 시스템 요구사항에서 필요한 정보 추출 */
