@@ -12,67 +12,24 @@ let appInfos = []; // 새로 저장할 게임의 시스템 요구사항
 
 /** 신규 게임 데이터를 업데이트합니다. */
 const updateGameData = async () => {
-    await getAppList();
-    appInfos = await useJSON.readJSON('gameData.json');
-    const omissions = await omissionCheck();
-    for (const id of omissions) {
-        // 오류 검사
-        if (appInfos.find((app) => {app.id === id})) {
-            console.log(`\n\n\n\n\n${id} is Duplicate value!!!!!\n\n\n\n\n`);
-            continue;
-        }
-
-        await steam.getGameDetails(id)
-        .then(details => {
-            const minimum = details.pc_requirements.minimum;
-            const recommended = details.pc_requirements.recommended;
-            const minimumRequirementsObject = extractData(minimum);
-            const recommendedRequirementsObject = extractData(recommended);
-
-            appInfos.push({
-                name: appNames[appIDs.indexOf(id)],
-                id: id,
-                is_free: details.is_free,
-                supported_languages: details.supported_languages,
-                header_image: details.header_image,
-                requirements: {
-                    minimum: minimumRequirementsObject,
-                    recommended: recommendedRequirementsObject
-                },
-                price_overview: details.price_overview,
-                categories: details.categories,
-                genres: details.genres
-            });
-            console.log('Push Completed! app ID', id);
-        })
-        .catch(error => {
-            if (error.message === 'No app found') {
-                appInfos.push({
-                    name: appNames[appIDs.indexOf(id)],
-                    id: id,
-                    requirements: {},
-                });
-                console.log(`Invalid app ID ${id}, skipping...`);
-            } else {
-                throw error;
-            }
-        });
-    }
-    await useJSON.writeJSON(appInfos, 'gameData.json');
+    // await getAppList();
+    // appInfos = await useJSON.readJSON('gameData.json');
+    // const omissions = await omissionCheck();
+    // await useJSON.writeJSON(appInfos, 'gameData.json');
 }
 
-/** 게임 데이터를 전체 게임 리스트와 비교해 끊긴 부분부터 이어서 불러와 저장 */
+/** 세부 데이터가 업로드되지 않은 게임 크롤링 */
 const writeGameDataContinue = async () => {
-    const games = await useJSON.readJSON('games.json');
-    appIDs = games.map(game => game.appid);
-    appNames = games.map(game => game.name);
+    const games = omissionCheck();
+    appIDs = (await games).map(game => game.appid);
+    appNames = (await games).map(game => game.name);
 
     appInfos = await useJSON.readJSON('gameData.json');
-    
-    const startIndex = appInfos.length;
-    if (startIndex < appIDs.length) {
-        console.log('Continue indexing from', startIndex);
-        await getNextBatch(startIndex).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); });
+
+    if (0 < appIDs.length) {
+        console.log(appIDs.length, 'missing data found.')
+        console.log('Continued from ID', appIDs[0]);
+        await getNextBatch(0).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); });
     } else {
         console.log('GameData Upload Completed!');
     }
@@ -81,18 +38,15 @@ const writeGameDataContinue = async () => {
 /** 누락된 데이터 검사 */
 const omissionCheck = async () => {
     const games = await useJSON.readJSON('games.json');
-    appIDs = games.map(game => game.appid);
     const gameData = await useJSON.readJSON('gameData.json');
-    const compareIDs = gameData.map(app => app.id);
 
     let omissionList = [];
 
-    appIDs.map(appID => {
-        if (!compareIDs.find(compareID => {compareID === appID}))
-            omissionList.push(appID);
+    games.map(app => {
+        if (!gameData.find(compare => {compare.id === app.appid}))
+            omissionList.push(app);
     });
 
-    console.log('omission List:\n', omissionList);
     return omissionList;
 }
 
