@@ -1,10 +1,11 @@
+const { chromium } = require('playwright');
 const SteamAPI = require('steamapi');
 const API_KEY = require('../../config/secret').STEAM_API_KEY;
 const steam = new SteamAPI(API_KEY);
 const useJSON = require('./useJSON');
 
-const batchSize = 200; // 한 번에 처리할 게임 개수
-const interval = (5 * 60 * 1000) + 1000; // API 호출 간격 (밀리초 단위)
+const batchSize = 20; // 한 번에 처리할 게임 개수
+const interval = 0.3 * 60 * 1000; // 크롤링 호출 간격 (밀리초 단위)
 let appIDs = []; // 모든 게임의 app ID
 let appNames = []; // 모든 게임의 이름
 let appInfos = []; // 새로 저장할 게임의 시스템 요구사항
@@ -95,6 +96,58 @@ const omissionCheck = async () => {
     return omissionList;
 }
 
+const oneAppCheck = async (id) => {
+    const browser = await chromium.launch({ headless: true });
+    const browserContext = await browser.newContext();
+    await browserContext.addCookies(
+        [
+            { name: 'lastagecheckage', value: '29-1-2000', url: 'https://store.steampowered.com' },
+            { name: 'birthtime', value: '946393201', url: 'https://store.steampowered.com' }
+        ]
+    );
+
+    let appInfo = {};
+
+    appInfo.id = id;
+    appInfo.name = appNames[appIDs.indexOf(id)];
+    
+    const page = await browserContext.newPage();
+    try {
+        await page.goto(`https://store.steampowered.com/app/${id}`);
+        
+        if (page.url() !== 'https://store.steampowered.com/' && page.url() !== 'https://store.steampowered.com/app/1418100') {
+            // Price
+            const isDiscount = await page.$('.game_area_purchase_game_wrapper .discount_original_price');
+            if (isDiscount !== null) {
+                const priceInfo = await page.$eval('.game_purchase_discount:nth-child(1)', el => el.textContent.trim());
+                const matchedPrice = /(-?\d+)%.*?([\d,]+).*?([\d,]+|$)/g.exec(priceInfo);
+                appInfo.is_discount = true;
+                appInfo.price = {
+                    discount_pct: matchedPrice[1],
+                    original_price: matchedPrice[2].replace(',', ''),
+                    discount_price: matchedPrice[3].replace(',', '')
+                }
+            } else {
+                let priceInfo = await page.$eval('.game_purchase_price:nth-child(1)', el => el.textContent.trim());
+                if (priceInfo === 'Download the Free Demo') {
+                    priceInfo = await page.$eval('.game_purchase_price:nth-child(2)', el => el.textContent.trim());
+                }
+                const matchedPrice = priceInfo.match(/\d+,\d+/)[0];
+                appInfo.is_discount = false;
+                appInfo.price = {
+                    original_price: parseInt(matchedPrice.replace(/,/g, ""))
+                }
+            }
+        }
+        console.log('Push Completed! app ID', id);
+    } catch (error) {
+        console.error(`Error occurred while processing app ID ${id}: ${error}`);
+    } finally {
+        console.log(appInfo);
+        await browser.close();
+    }
+}
+
 /** Steam에서 서비스 중인 모든 게임 리스트를 가져옵니다. */
 async function getAppList() {
     return steam.getAppList().then(async apps => {
@@ -108,51 +161,82 @@ async function getAppList() {
 async function getNextBatch(startIndex) {
     const endIndex = Math.min(startIndex + batchSize, appIDs.length);
     const batchIDs = appIDs.slice(startIndex, endIndex);
+
+    // 페이지 크롤링
+    const browser = await chromium.launch({ headless: true });
+    const browserContext = await browser.newContext();
+    await browserContext.addCookies(
+        [
+            { name: 'lastagecheckage', value: '29-1-2000', url: 'https://store.steampowered.com' },
+            { name: 'birthtime', value: '946393201', url: 'https://store.steampowered.com' }
+        ]
+    );
+    const promises = batchIDs.map(async (id, index) => {
+        let appInfo = {};
+
+        // ID, NAME
+        appInfo.id = id;
+        appInfo.name = appNames[appIDs.indexOf(id)];
+        
+        const page = await browserContext.newPage();
+        try {
+            await page.goto(`https://store.steampowered.com/app/${id}`);
+            
+            // 해당 게임의 스토어 페이지가 존재하지 않을 경우 세부 데이터 스크래핑 방지
+            if (page.url() !== 'https://store.steampowered.com/' && page.url() !== 'https://store.steampowered.com/app/1418100') {
+                // Price
+                const isDiscount = await page.$('.game_area_purchase_game_wrapper .discount_original_price');
+                if (isDiscount !== null) {
+                    const priceInfo = await page.$eval('.game_purchase_discount:nth-child(1)', el => el.textContent.trim());
+                    const matchedPrice = /(-?\d+)%.*?([\d,]+).*?([\d,]+|$)/g.exec(priceInfo);
+                    appInfo.is_discount = true;
+                    appInfo.price = {
+                        discount_pct: matchedPrice[1],
+                        original_price: matchedPrice[2].replace(',', ''),
+                        discount_price: matchedPrice[3].replace(',', '')
+                    }
+                } else {
+                    let priceInfo = await page.$eval('.game_purchase_price:nth-child(1)', el => el.textContent.trim());
+                    if (priceInfo === 'Download the Free Demo') {
+                        priceInfo = await page.$eval('.game_purchase_price:nth-child(2)', el => el.textContent.trim());
+                    }
+                    const matchedPrice = priceInfo.match(/\d+,\d+/)[0];
+                    appInfo.is_discount = false;
+                    appInfo.price = {
+                        original_price: parseInt(matchedPrice.replace(/,/g, ""))
+                    }
+                }
     
-    // 다음 호출을 예약, 호출을 마치면 JSON 파일에 저장
+                // Requirement
+            }
+            console.log(appInfo);
+            console.log('Push Completed! app ID', id);
+        } catch (error) {
+            console.log(appInfo);
+            console.error(`Error occurred while processing app ID ${id}: ${error}`);
+        } finally {
+            appInfos.push(appInfo);
+            await page.close();
+        }
+    });
+
+    // // 브라우저 종료
+    // await browser.close()
+
+    // 다음 호출을 예약
     if (endIndex < appIDs.length) {
         setTimeout(() => getNextBatch(endIndex).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); }), interval);
     }
 
-    // API 호출
-    for (const id of batchIDs) {
-        // 오류 검사
-        if (appInfos.find((app) => {app.id === id}))
-            throw `\n\n\n\n\n${id} is Duplicate value!!!!!\n\n\n\n\n`;
+    return Promise.all(promises);
+    // const minimum = details.pc_requirements.minimum;
+    // const recommended = details.pc_requirements.recommended;
+    // const minimumRequirementsObject = extractData(minimum);
+    // const recommendedRequirementsObject = extractData(recommended);
 
-        await steam.getGameDetails(id)
-        .then(details => {
-            const minimum = details.pc_requirements.minimum;
-            const recommended = details.pc_requirements.recommended;
-            const minimumRequirementsObject = extractData(minimum);
-            const recommendedRequirementsObject = extractData(recommended);
-
-            appInfos.push({
-                name: appNames[appIDs.indexOf(id)],
-                id: id,
-                is_free: details.is_free,
-                supported_languages: details.supported_languages,
-                header_image: details.header_image,
-                requirements: {
-                    minimum: minimumRequirementsObject,
-                    recommended: recommendedRequirementsObject
-                },
-                price_overview: details.price_overview,
-                categories: details.categories,
-                genres: details.genres
-            });
-            console.log('Push Completed! app ID', id);
-        })
-        .catch(error => {
-            appInfos.push({
-                name: appNames[appIDs.indexOf(id)],
-                id: id,
-                requirements: {},
-            });
-            if (error.message === 'No app found') console.log(`Invalid app ID ${id}, skipping...`);
-            else console.log(error);
-        });
-    }
+    //     price_overview: details.price_overview,
+    //     categories: details.categories,
+    //     genres: details.genres
 };
 
 /** 시스템 요구사항에서 필요한 정보 추출 */
@@ -192,5 +276,6 @@ function extractData(requirements) {
 module.exports = {
     updateGameData,
     writeGameDataContinue,
-    omissionCheck
+    omissionCheck,
+    oneAppCheck
 }
