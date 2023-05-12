@@ -64,15 +64,17 @@ const oneAppCheck = async (id) => {
 
     appInfo.id = id;
     appInfo.name = appNames[appIDs.indexOf(id)];
-    
     const page = await browserContext.newPage();
     try {
         await page.goto(`https://store.steampowered.com/app/${id}`);
         
-        if (page.url() !== 'https://store.steampowered.com/' && page.url() !== 'https://store.steampowered.com/app/1418100') {
-            // Price
-            const isDiscount = await page.$('.game_area_purchase_game_wrapper .discount_original_price');
-            if (isDiscount !== null) {
+        if (page.url() !== 'https://store.steampowered.com/' && page.url() !== 'https://store.steampowered.com/app/' + id) {
+
+            // ======================================== Price ==========================================
+            const onSale = await page.$('.game_area_purchase_game_wrapper .discount_original_price');
+            const forSale = await page.$('.game_area_purchase_game_wrapper');
+
+            if (onSale !== null) { // 할인 중
                 const priceInfo = await page.$eval('.game_purchase_discount:nth-child(1)', el => el.textContent.trim());
                 const matchedPrice = /(-?\d+)%.*?([\d,]+).*?([\d,]+|$)/g.exec(priceInfo);
                 appInfo.is_discount = true;
@@ -81,17 +83,24 @@ const oneAppCheck = async (id) => {
                     original_price: matchedPrice[2].replace(',', ''),
                     discount_price: matchedPrice[3].replace(',', '')
                 }
-            } else {
+            } else if (forSale) { // 판매 중
                 let priceInfo = await page.$eval('.game_purchase_price:nth-child(1)', el => el.textContent.trim());
                 if (priceInfo === 'Download the Free Demo') {
                     priceInfo = await page.$eval('.game_purchase_price:nth-child(2)', el => el.textContent.trim());
                 }
-                const matchedPrice = priceInfo.match(/\d+,\d+/)[0];
+                const matchedPrice = priceInfo.match(/\d+,\d+/);
                 appInfo.is_discount = false;
                 appInfo.price = {
-                    original_price: parseInt(matchedPrice.replace(/,/g, ""))
+                    original_price: parseInt(matchedPrice[0].replace(/,/g, ""))
                 }
             }
+            // =========================================================================================
+
+            // ====================================== Requirement ======================================
+            const requirementsInput = await page.$eval('.game_area_sys_req:nth-child(1)', el => el.textContent.trim());
+            console.log(requirementsInput);
+            appInfo.requirement = parseSystemRequirements(requirementsInput);
+            // =========================================================================================
         }
         console.log('Push Completed! app ID', id);
     } catch (error) {
@@ -138,7 +147,8 @@ async function getNextBatch(startIndex) {
             await page.goto(`https://store.steampowered.com/app/${id}`);
             
             // 해당 게임의 스토어 페이지가 존재하지 않을 경우 세부 데이터 스크래핑 방지
-            if (page.url() !== 'https://store.steampowered.com/' && page.url() !== 'https://store.steampowered.com/app/1418100') {
+            if (page.url() !== 'https://store.steampowered.com/' && page.url() !== 'https://store.steampowered.com/app/' + id) {
+                
                 // Price
                 const isDiscount = await page.$('.game_area_purchase_game_wrapper .discount_original_price');
                 if (isDiscount !== null) {
@@ -156,13 +166,26 @@ async function getNextBatch(startIndex) {
                         priceInfo = await page.$eval('.game_purchase_price:nth-child(2)', el => el.textContent.trim());
                     }
                     const matchedPrice = priceInfo.match(/\d+,\d+/)[0];
-                    appInfo.is_discount = false;
-                    appInfo.price = {
-                        original_price: parseInt(matchedPrice.replace(/,/g, ""))
+                    if(matchedPrice) {
+                        appInfo.is_discount = false;
+                        appInfo.price = {
+                            original_price: parseInt(matchedPrice[0].replace(/,/g, ""))
+                        }
                     }
                 }
     
                 // Requirement
+
+                // 최소만 있을 때
+                
+                const minimum = await page.$eval('.game_area_sys_req_full:nth-child(1)', el => el.textContent.trim());
+                const minimumRequirementsObject = extractData(minimum);
+                
+                console.log(minimumRequirementsObject);
+
+                // 최소, 권장이 있을 때
+                // .game_area_sys_req_leftCol // 최소
+                // .game_area_sys_req_rightCol // 권장
                 
                 // const minimum = details.pc_requirements.minimum;
                 // const recommended = details.pc_requirements.recommended;
@@ -195,38 +218,67 @@ async function getNextBatch(startIndex) {
     return Promise.all(promises).then(async () => { await browser.close(); });
 };
 
-/** 시스템 요구사항에서 필요한 정보 추출 */
-function extractData(requirements) {
-    if (!requirements) return {};
-
-    const OSMatch = requirements.match(/<strong>OS:<\/strong>(.*?)<br>/);
-    const OS = OSMatch ? OSMatch[1].trim() : '';
-
-    const ProcessorMatch = requirements.match(/<strong>Processor:<\/strong>(.*?)<br>/);
-    const Processor = ProcessorMatch ? ProcessorMatch[1].trim() : '';
-
-    const MemoryMatch = requirements.match(/<strong>Memory:<\/strong>(.*?)<br>/);
-    const Memory = MemoryMatch ? MemoryMatch[1].trim() : '';
-
-    const GraphicsMatch = requirements.match(/<strong>Graphics:<\/strong>(.*?)<br>/);
-    const Graphics = GraphicsMatch ? GraphicsMatch[1].trim() : '';
-
-    const DirectXMatch = requirements.match(/<strong>DirectX:<\/strong>(.*?)<br>/);
-    const DirectX = DirectXMatch ? DirectXMatch[1].trim() : '';
-
-    const StorageMatch = requirements.match(/<strong>Storage:<\/strong>(.*?)<br>/);
-    const Storage = StorageMatch ? StorageMatch[1].trim() : '';
-
-    const RequirementsObject = {
-        OS: OS,
-        Processor: Processor.split(/(Intel|AMD)\s.*?(?=\s\()/),
-        Memory: Memory,
-        Graphics: Graphics.split(/,| or |\/|\s/),
-        DirectX: DirectX,
-        Storage: Storage
+/**
+ * 입력된 시스템 요구사항 문자열을 파싱하여 최소 요구사항과 권장 요구사항을 추출합니다.
+ * @param {string} input - 시스템 요구사항 문자열
+ * @returns {object} - 최소 요구사항과 권장 요구사항을 담은 객체
+ */
+function parseSystemRequirements(input) {
+    const requirements = {
+      minimum: {},
+      recommended: {},
+    };
+  
+    const minimumRegex = /Minimum:([\s\S]*?)(?=Recommended:|$)/;
+    const recommendedRegex = /Recommended:([\s\S]*)/;
+  
+    const minimumMatch = input.match(minimumRegex);
+    if (minimumMatch) {
+      const minimumRequirements = minimumMatch[1].trim();
+      console.log(minimumRequirements);
+      requirements.minimum = extractSystemRequirements(minimumRequirements);
     }
+  
+    const recommendedMatch = input.match(recommendedRegex);
+    if (recommendedMatch) {
+      const recommendedRequirements = recommendedMatch[1].trim();
+      console.log(recommendedRequirements);
+      requirements.recommended = extractSystemRequirements(recommendedRequirements);
+    }
+  
+    return requirements;
+}
 
-    return RequirementsObject;
+/**
+ * 입력된 문자열에서 시스템 요구사항을 추출하는 함수입니다.
+ * 문자열을 기준으로 각 요구사항을 `OS`, `Processor`, `Memory`, `Graphics`, `DirectX`, `Storage`로 분리합니다.
+ * 빈 요구사항은 빈 문자열 또는 빈 배열로 표시됩니다.
+ *
+ * @param {string} input - 추출할 시스템 요구사항이 포함된 문자열
+ * @returns {object} - 추출된 시스템 요구사항 객체
+ */
+function extractSystemRequirements(input) {
+    const requirements = {};
+
+    const osMatch = input.match(/OS:\s(.*?)Processor:/);
+    requirements.OS = osMatch ? osMatch[1].trim() : '';
+
+    const processorMatch = input.match(/Processor:\s(.*?)Memory:/);
+    requirements.Processor = processorMatch ? processorMatch[1].trim() : '';
+
+    const memoryMatch = input.match(/Memory:\s(.*?)Graphics:/);
+    requirements.Memory = memoryMatch ? memoryMatch[1].trim() : '';
+
+    const graphicsMatch = input.match(/Graphics:\s(.*?)DirectX:/);
+    requirements.Graphics = graphicsMatch ? graphicsMatch[1].trim() : '';
+
+    const directXMatch = input.match(/DirectX:\s(.*?)Storage:/);
+    requirements.DirectX = directXMatch ? directXMatch[1].trim() : '';
+
+    const storageMatch = input.match(/Storage:\s(.*?)$/);
+    requirements.Storage = storageMatch ? storageMatch[1].trim() : '';
+
+    return requirements;
 }
 
 module.exports = {
