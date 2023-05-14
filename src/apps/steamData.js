@@ -9,6 +9,8 @@ let appIDs = []; // 모든 게임의 app ID
 let appNames = []; // 모든 게임의 이름
 let appInfos = []; // 새로 저장할 게임의 시스템 요구사항
 
+let gpuList = []; // 시스템 요구사항과의 비교를 위한 GPU 리스트
+
 /**
  * 게임 데이터를 업데이트합니다. 게임 목록을 가져와 JSON 파일에 저장한 후, 작성되지 않은 게임들의 정보를 API를 통해 가져와 게임 데이터를 추가합니다.
  * 추가된 게임 데이터는 JSON 파일에 저장됩니다.
@@ -76,6 +78,7 @@ const findOmission = async () => {
  */
 const checkSingleApp = async (id) => {
     await fetchGameDetails(id);
+    useJSON.writeJSON(appInfos, 'singleGameData.json');
     console.log(appInfos);
 }
 
@@ -128,11 +131,11 @@ async function processNextBatch(startIndex) {
  */
 async function fetchGameDetails(id) {
     await steam.getGameDetails(id)
-        .then(details => {
+        .then(async details => {
             const minimum = details.pc_requirements.minimum;
             const recommended = details.pc_requirements.recommended;
-            const minimumRequirementsObject = extractRequirements(minimum);
-            const recommendedRequirementsObject = extractRequirements(recommended);
+            const minimumRequirementsObject = await extractRequirements(minimum);
+            const recommendedRequirementsObject = await extractRequirements(recommended);
             appInfos.push({
                 name: appNames[appIDs.indexOf(id)],
                 id: id,
@@ -143,7 +146,6 @@ async function fetchGameDetails(id) {
                     minimum: minimumRequirementsObject,
                     recommended: recommendedRequirementsObject
                 },
-                price_overview: details.price_overview,
                 categories: details.categories,
                 genres: details.genres
             });
@@ -174,12 +176,12 @@ function extractSupportedLanguages(input) {
 }
 
 /**
- * 주어진 입력 문자열에서 시스템 요구 사항 데이터를 추출하여 객체 형태로 반환하는 함수입니다.
+ * 주어진 입력 문자열에서 시스템 요구 사항 데이터를 추출하여 객체 형태로 반환하는 비동기 함수입니다.
  * 
  * @param {string} input - 추출할 시스템 요구 사항을 포함한 입력 문자열
  * @returns {Object} - 추출된 시스템 요구 사항 객체
  */
-function extractRequirements(input) {
+async function extractRequirements(input) {
     if (!input) return {};
 
     const OSMatch = input.match(/<strong>OS:<\/strong>(.*?)<br>/);
@@ -201,15 +203,73 @@ function extractRequirements(input) {
     const Storage = StorageMatch ? StorageMatch[1].trim() : '';
 
     const RequirementsObject = {
-        OS: OS,
-        Processor: Processor.split(/(Intel|AMD)\s.*?(?=\s\()/),
+        OS: extractOS(OS),
+        Processor: Processor,
         Memory: Memory,
-        Graphics: Graphics.split(/,| or |\/|\s/),
+        Graphics: await extractGraphics(Graphics),
         DirectX: DirectX,
         Storage: Storage
     }
-
     return RequirementsObject;
+}
+
+/**
+ * 주어진 입력 문자열에서 OS 버전과 bit 정보를 추출하여 객체 형태로 반환하는 함수입니다.
+ * 
+ * @param {string} input - 추출할 OS 버전과 bit 정보을 포함한 입력 문자열
+ * @returns {object} - 추출된 OS 버전과 bit 정보
+ */
+function extractOS(input) {
+    const versionOrder = ['Vista', '7', '8', '8.1', '10', '11'];
+
+    const versionRegex = /Windows (Vista|7|8\.1|10|11)/gi;
+    const bitRegex = /(\d+) Bit/i;
+
+    let versions = [];
+    let bit = '64';
+
+    // 윈도우 버전 추출
+    const versionMatches = input.matchAll(versionRegex);
+    for (const match of versionMatches) {
+        versions.push(match[1]);
+    }
+
+    // 윈도우 버전 중에서 최소 버전인지 확인
+    let minVersion = '';
+    for (const version of versionOrder) {
+        if (versions.includes(version)) {
+            minVersion = version;
+            break;
+        }
+    }
+
+    // 비트 정보 추출
+    const bitMatch = input.match(bitRegex);
+    if (bitMatch) {
+        bit = bitMatch[1];
+    }
+
+    return { version: minVersion, bit };
+}
+
+/**
+ * 입력된 문자열에 포함된 그래픽 카드 정보를 추출하는 비동기 함수입니다.
+ * gpuList 배열에 저장된 그래픽 카드 데이터를 활용하여 입력 문자열에 해당하는 그래픽 카드를 찾습니다.
+ * 
+ * @param {string} input - 그래픽 카드를 검색할 문자열
+ * @returns {Array} - 입력 문자열에 포함된 그래픽 카드 데이터 배열
+ */
+async function extractGraphics(input) {
+    if (gpuList.length < 1) {
+        gpuList = await useJSON.readJSON('gpuData.json');
+    }
+    graphics = [];
+    gpuList.map(data => {
+        if(input.includes(data.name, true))
+            graphics.push(data);
+    });
+
+    return graphics;
 }
 
 module.exports = {
