@@ -1,4 +1,4 @@
 node_modules/
 config/secret.js
-data/_gameData.json
+data/
 src/apps/_steamData.js
