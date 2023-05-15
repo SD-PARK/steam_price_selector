@@ -206,7 +206,7 @@ async function extractRequirements(input) {
     const RequirementsObject = {
         OS: extractOS(OS),
         Processor: await extractProcessor(Processor),
-        Memory: Memory,
+        Memory: extractMemory(Memory),
         Graphics: await extractGraphics(Graphics),
         DirectX: DirectX,
         Storage: Storage
@@ -215,7 +215,7 @@ async function extractRequirements(input) {
 }
 
 /**
- * 주어진 입력 문자열에서 OS 버전과 bit 정보를 추출하여 객체 형태로 반환하는 함수입니다.
+ * 주어진 문자열에서 OS 버전과 bit 정보를 추출하여 객체 형태로 반환하는 함수입니다.
  * 
  * @param {string} input - 추출할 OS 버전과 bit 정보을 포함한 입력 문자열
  * @returns {object} - 추출된 OS 버전과 bit 정보
@@ -254,7 +254,7 @@ function extractOS(input) {
 }
 
 /**
- * 입력된 문자열에 포함된 CPU 정보를 추출하는 비동기 함수입니다.
+ * 주어진 문자열에 포함된 CPU 정보를 추출하는 비동기 함수입니다.
  * cpuList 배열에 저장된 CPU 데이터를 활용하여 입력 문자열에 해당하는 CPU를 찾습니다.
  * 
  * @param {string} input - CPU를 검색할 문자열
@@ -265,18 +265,17 @@ async function extractProcessor(input) {
         cpuList = await useJSON.readJSON('cpuData.json');
     }
 
-    let regex = /i(\d+)\s(\d+)/g;
-    let modifiedInput = input.toLowerCase().replace(regex, "i$1-$2");
-    regex = /(\d+(\.\d{1,2})?)ghz/g;
-    modifiedInput = modifiedInput.replace(regex, (match, p1) => {
+    let regex = /(\d+(\.\d{1,2})?)ghz/g;
+    let modifiedInput = input.toLowerCase().replace(regex, (match, p1) => {
         const number = parseFloat(p1).toFixed(2);
         return number + "ghz";
     });
-    console.log(modifiedInput);
+    modifiedInput = modifiedInput.replace(/[ -]/g, '');
 
     let processor;
     cpuList.forEach(data => {
-        if(modifiedInput.includes(data.name.toLowerCase()) && (!processor || processor.value < data.value))
+        const modifiedDataName = data.name.replace(/[ -]/g, '').toLowerCase();
+        if (modifiedInput.includes(modifiedDataName) && (!processor || processor.value < data.value))
             processor = data;
     });
 
@@ -284,7 +283,34 @@ async function extractProcessor(input) {
 }
 
 /**
- * 입력된 문자열에 포함된 그래픽 카드 정보를 추출하는 비동기 함수입니다.
+ * 주어진 문자열에서 메모리 용량을 추출하는 함수입니다.
+ * 
+ * @param {string} input - 추출할 메모리 용량이 포함된 문자열
+ * @returns {number} - 추출된 메모리 용량 (단위: MB)
+ */
+function extractMemory(input) {
+    const volumnMatch = input.match(/\d+/);
+    const byte = input.match(/(MB|GB|TB)/);
+
+    if (volumnMatch && byte) {
+        const volumn = parseInt(volumnMatch[0]);
+        const unit = byte[0];
+
+        switch (unit) {
+            case 'GB':
+                return volumn * 1024;
+            case 'TB':
+                return volumn * 1024 * 1024;
+            default:
+                return volumn;
+        }
+    }
+
+    return 0;
+}
+
+/**
+ * 주어진 문자열에 포함된 그래픽 카드 정보를 추출하는 비동기 함수입니다.
  * gpuList 배열에 저장된 그래픽 카드 데이터를 활용하여 입력 문자열에 해당하는 그래픽 카드를 찾습니다.
  * 
  * @param {string} input - 그래픽 카드를 검색할 문자열
