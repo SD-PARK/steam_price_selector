@@ -168,7 +168,7 @@ async function fetchGameDetails(id) {
  * @returns {string[]} - 추출된 언어 배열
  */
 function extractSupportedLanguages(input) {
-    console.log(input);
+    if(!input) return undefined;
     const words = input.includes("<br>") ? input.split("<br>")[0] : input;
     const languages = words.split(', ').map(str => str.includes('<strong>') ? str.split("<strong>")[0] : str);
     return languages;
