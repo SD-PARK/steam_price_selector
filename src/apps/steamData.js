@@ -9,7 +9,9 @@ let appIDs = []; // 모든 게임의 app ID
 let appNames = []; // 모든 게임의 이름
 let appInfos = []; // 새로 저장할 게임의 시스템 요구사항
 
-let gpuList = []; // 시스템 요구사항과의 비교를 위한 GPU 리스트
+// 시스템 요구사항과의 비교를 위한 변수
+let gpuList = []; // GPU 리스트
+let cpuList = []; // CPU 리스트
 
 /**
  * 게임 데이터를 업데이트합니다. 게임 목록을 가져와 JSON 파일에 저장한 후, 작성되지 않은 게임들의 정보를 API를 통해 가져와 게임 데이터를 추가합니다.
@@ -203,7 +205,7 @@ async function extractRequirements(input) {
 
     const RequirementsObject = {
         OS: extractOS(OS),
-        Processor: Processor,
+        Processor: await extractProcessor(Processor),
         Memory: Memory,
         Graphics: await extractGraphics(Graphics),
         DirectX: DirectX,
@@ -252,6 +254,36 @@ function extractOS(input) {
 }
 
 /**
+ * 입력된 문자열에 포함된 CPU 정보를 추출하는 비동기 함수입니다.
+ * cpuList 배열에 저장된 CPU 데이터를 활용하여 입력 문자열에 해당하는 CPU를 찾습니다.
+ * 
+ * @param {string} input - CPU를 검색할 문자열
+ * @returns {Array} - 입력 문자열에 포함된 CPU 데이터 배열
+ */
+async function extractProcessor(input) {
+    if (cpuList.length < 1) {
+        cpuList = await useJSON.readJSON('cpuData.json');
+    }
+
+    let regex = /i(\d+)\s(\d+)/g;
+    let modifiedInput = input.toLowerCase().replace(regex, "i$1-$2");
+    regex = /(\d+(\.\d{1,2})?)ghz/g;
+    modifiedInput = modifiedInput.replace(regex, (match, p1) => {
+        const number = parseFloat(p1).toFixed(2);
+        return number + "ghz";
+    });
+    console.log(modifiedInput);
+
+    let processor;
+    cpuList.forEach(data => {
+        if(modifiedInput.includes(data.name.toLowerCase()) && (!processor || processor.value < data.value))
+            processor = data;
+    });
+
+    return processor;
+}
+
+/**
  * 입력된 문자열에 포함된 그래픽 카드 정보를 추출하는 비동기 함수입니다.
  * gpuList 배열에 저장된 그래픽 카드 데이터를 활용하여 입력 문자열에 해당하는 그래픽 카드를 찾습니다.
  * 
@@ -262,13 +294,16 @@ async function extractGraphics(input) {
     if (gpuList.length < 1) {
         gpuList = await useJSON.readJSON('gpuData.json');
     }
-    graphics = [];
-    gpuList.map(data => {
-        if(input.includes(data.name, true))
-            graphics.push(data);
+
+    const modifiedInput = input.toLowerCase().replace(/nvidia/g, "geforce");
+
+    let graphic;
+    gpuList.forEach(data => {
+        if(modifiedInput.includes(data.name.toLowerCase()) && (!graphic || graphic.value < data.value))
+            graphic = data;
     });
 
-    return graphics;
+    return graphic;
 }
 
 module.exports = {
