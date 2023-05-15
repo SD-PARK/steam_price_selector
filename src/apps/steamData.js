@@ -67,7 +67,7 @@ const findOmission = async () => {
             omissionList.push(game);
     });
 
-    console.log('omission List:\n', omissionList);
+    // console.log('omission List:\n', omissionList);
     return omissionList;
 }
 
@@ -111,15 +111,13 @@ async function processNextBatch(startIndex) {
     const batchIDs = appIDs.slice(startIndex, endIndex);
     
     if (endIndex < appIDs.length) {
-        setTimeout(() => processNextBatch(endIndex).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); }), interval);
+        setTimeout(() => processNextBatch(endIndex).then(async () => {
+            await useJSON.writeJSON(appInfos, 'gameData.json');
+        }), interval);
     }
 
-    for (const id of batchIDs) {
-        if (appInfos.find((app) => {app.id === id}))
-            throw `\n\n\n\n\n${id} is Duplicate value!!!!!\n\n\n\n\n`;
-
-        fetchGameDetails(id);
-    }
+    const promises = batchIDs.map(id => fetchGameDetails(id))
+    return Promise.all(promises);
 };
 
 /**
@@ -164,15 +162,15 @@ async function fetchGameDetails(id) {
 }
 
 /**
- * 주어진 입력 문자열에서 영어 언어를 추출하여 배열 형태로 반환하는 함수입니다.
+ * 주어진 입력 문자열에서 언어를 추출하여 배열 형태로 반환하는 함수입니다.
  * 
  * @param {string} input - 추출할 언어를 포함한 입력 문자열
- * @returns {string[]} - 추출된 영어 언어 배열
+ * @returns {string[]} - 추출된 언어 배열
  */
 function extractSupportedLanguages(input) {
-    const languageRegex = /([A-Za-z\s-]+)(?=<strong>\*<\/strong>?)/g;
-    const matches = input.match(languageRegex);
-    const languages = matches ? matches.map(match => match.trim()) : [];
+    console.log(input);
+    const words = input.includes("<br>") ? input.split("<br>")[0] : input;
+    const languages = words.split(', ').map(str => str.includes('<strong>') ? str.split("<strong>")[0] : str);
     return languages;
 }
 
