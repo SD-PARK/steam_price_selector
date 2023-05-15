@@ -9,6 +9,7 @@ require('../apps/steamData').checkSingleApp(271590); // Steam Data 갱신 // Gra
 // require('../apps/steamData').checkSingleApp(1150530); // Steam Data 갱신 // Wizard with a Gun
 // require('../apps/steamData').checkSingleApp(1415280); // Steam Data 갱신 // Faerie Afterlight
 // require('../apps/steamData').findOmission();
+// require('../apps/steamData').continueWritingGameData();
 
 router.get('/', async (req, res) => {
     // res.send('This Message from the Router.');
