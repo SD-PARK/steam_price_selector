@@ -19,6 +19,7 @@ const updateGameDatabase = async () => {
     await fetchAppList();
     appInfos = await useJSON.readJSON('gameData.json');
     const omissions = await findOmission();
+    appIDs = omissions.map(game => game.appid);
     for (const id of omissions) {
         if (appInfos.find((app) => {app.id === id})) {
             console.log(`\n\n\n\n\n${id} is Duplicate value!!!!!\n\n\n\n\n`);
@@ -35,15 +36,14 @@ const updateGameDatabase = async () => {
  * 이어서 작성 작업을 진행하며, 아직 작성되지 않은 게임들의 정보를 API를 통해 가져와 JSON 파일에 추가합니다.
  */
 const continueWritingGameData = async () => {
-    const games = await useJSON.readJSON('games.json');
+    const games = await findOmission();
     appIDs = games.map(game => game.appid);
     appNames = games.map(game => game.name);
     appInfos = await useJSON.readJSON('gameData.json');
     
-    const startIndex = appInfos.length;
-    if (startIndex < appIDs.length) {
-        console.log('Continue indexing from', startIndex);
-        await processNextBatch(startIndex).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); });
+    if (appIDs.length > 0) {
+        console.log('Continue indexing from', appIDs[0]);
+        await processNextBatch(0).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); });
     } else {
         console.log('GameData Upload Completed!');
     }
@@ -56,14 +56,13 @@ const continueWritingGameData = async () => {
  */
 const findOmission = async () => {
     const games = await useJSON.readJSON('games.json');
-    appIDs = games.map(game => game.appid);
     const gameData = await useJSON.readJSON('gameData.json');
     const compareIDs = gameData.map(app => app.id);
 
     let omissionList = [];
-    appIDs.map(appID => {
-        if (!compareIDs.find(compareID => {compareID === appID}))
-            omissionList.push(appID);
+    games.map(game => {
+        if (!compareIDs.find(compareID => {compareID === game.appid}))
+            omissionList.push(game);
     });
 
     console.log('omission List:\n', omissionList);
