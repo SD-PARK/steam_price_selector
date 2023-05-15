@@ -34,8 +34,9 @@ const updateGameDatabase = async () => {
 }
 
 /**
- * 게임 데이터 작성 작업을 계속 진행합니다. JSON 파일에서 게임 목록을 읽어와 필요한 정보를 추출하고, 지금까지 작성된 게임 데이터를 불러옵니다.
- * 이어서 작성 작업을 진행하며, 아직 작성되지 않은 게임들의 정보를 API를 통해 가져와 JSON 파일에 추가합니다.
+ * 게임 데이터 작성 작업을 이어서 진행합니다. 'findOmission()' 함수를 통해 아직 작성되지 않은 데이터를 추출하고,
+ * 작성된 게임 데이터 파일이 저장되어 있는 JSON 파일을 불러옵니다.
+ * 이후 아직 작성되지 않은 게임들의 정보를 API를 통해 가져와 JSON 파일에 추가합니다.
  */
 const continueWritingGameData = async () => {
     const games = await findOmission();
@@ -97,14 +98,14 @@ async function fetchAppList() {
 }
 
 /**
- * 다음 일괄 처리를 수행하는 비동기 함수입니다.
+ * 일괄 처리를 수행하는 비동기 함수입니다.
  * 시작 인덱스를 기준으로 일괄 처리할 게임 ID를 가져온 다음, API를 호출하여 게임 세부 정보를 추출합니다.
  * 이후 다음 일괄 처리를 예약하고, 모든 호출이 완료되면 추출된 정보를 JSON 파일에 저장합니다.
  * 
  * !!호출하기 전 반드시 appIDs, appNames 변수를 초기화해주어야 합니다.
  *
  * @param {number} startIndex - 일괄 처리의 시작 인덱스
- * @returns {Promise<void>}
+ * @returns {Promise<Array>}
  */
 async function processNextBatch(startIndex) {
     const endIndex = Math.min(startIndex + batchSize, appIDs.length);
