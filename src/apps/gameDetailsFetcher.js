@@ -154,8 +154,7 @@ async function fetchGameDetails(id) {
         .catch(error => {
             appInfos.push({
                 name: appNames[appIDs.indexOf(id)],
-                id: id,
-                requirements: {},
+                id: id
             });
             if (error.message === 'No app found') console.log(`Invalid app ID ${id}, skipping...`);
             else console.log(error);
@@ -196,9 +195,6 @@ async function extractRequirements(input) {
     const GraphicsMatch = input.match(/<strong>Graphics:<\/strong>(.*?)<br>/);
     const Graphics = GraphicsMatch ? GraphicsMatch[1].trim() : '';
 
-    const DirectXMatch = input.match(/<strong>DirectX:<\/strong>(.*?)<br>/);
-    const DirectX = DirectXMatch ? DirectXMatch[1].trim() : '';
-
     const StorageMatch = input.match(/<strong>Storage:<\/strong>(.*?)<br>/);
     const Storage = StorageMatch ? StorageMatch[1].trim() : '';
 
@@ -207,8 +203,7 @@ async function extractRequirements(input) {
         Processor: await extractProcessor(Processor),
         Memory: extractMemory(Memory),
         Graphics: await extractGraphics(Graphics),
-        DirectX: DirectX,
-        Storage: Storage
+        Storage: extractMemory(Storage)
     }
     return RequirementsObject;
 }
