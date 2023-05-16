@@ -198,7 +198,6 @@ async function extractRequirements(input) {
 
     const StorageMatch = input.match(/<strong>Storage:<\/strong>(.*?)</);
     const Storage = StorageMatch ? StorageMatch[1].trim() : '';
-    console.log(Storage);
 
     const RequirementsObject = {
         OS: extractOS(OS),
