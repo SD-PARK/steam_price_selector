@@ -45,7 +45,7 @@ const continueWritingGameData = async () => {
     appInfos = await useJSON.readJSON('gameData.json');
     
     if (appIDs.length > 0) {
-        console.log('Continue indexing from', appIDs[0]);
+        console.log('Unwritten data:', appIDs.length);
         await processNextBatch(0).then(async () => { await useJSON.writeJSON(appInfos, 'gameData.json'); });
     } else {
         console.log('GameData Upload Completed!');
@@ -156,7 +156,8 @@ async function fetchGameDetails(id) {
                 name: appNames[appIDs.indexOf(id)],
                 id: id
             });
-            if (error.message === 'No app found') console.log(`Invalid app ID ${id}, skipping...`);
+            if (error.message === 'Too Many Requests') throw error;
+            else if (error.message === 'No app found') console.log(`Invalid app ID ${id}, skipping...`);
             else console.log(error);
         });
 }
@@ -183,20 +184,21 @@ function extractSupportedLanguages(input) {
 async function extractRequirements(input) {
     if (!input) return {};
 
-    const OSMatch = input.match(/<strong>OS:<\/strong>(.*?)<br>/);
+    const OSMatch = input.match(/<strong>OS:<\/strong>(.*?)</);
     const OS = OSMatch ? OSMatch[1].trim() : '';
 
-    const ProcessorMatch = input.match(/<strong>Processor:<\/strong>(.*?)<br>/);
+    const ProcessorMatch = input.match(/<strong>Processor:<\/strong>(.*?)</);
     const Processor = ProcessorMatch ? ProcessorMatch[1].trim() : '';
 
-    const MemoryMatch = input.match(/<strong>Memory:<\/strong>(.*?)<br>/);
+    const MemoryMatch = input.match(/<strong>Memory:<\/strong>(.*?)</);
     const Memory = MemoryMatch ? MemoryMatch[1].trim() : '';
 
-    const GraphicsMatch = input.match(/<strong>Graphics:<\/strong>(.*?)<br>/);
+    const GraphicsMatch = input.match(/<strong>Graphics:<\/strong>(.*?)</);
     const Graphics = GraphicsMatch ? GraphicsMatch[1].trim() : '';
 
-    const StorageMatch = input.match(/<strong>Storage:<\/strong>(.*?)<br>/);
+    const StorageMatch = input.match(/<strong>Storage:<\/strong>(.*?)</);
     const Storage = StorageMatch ? StorageMatch[1].trim() : '';
+    console.log(Storage);
 
     const RequirementsObject = {
         OS: extractOS(OS),
