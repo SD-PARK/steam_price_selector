@@ -62,11 +62,7 @@ const findOmission = async () => {
     const gameData = await useJSON.readJSON('gameData.json');
     const compareIDs = gameData.map(app => app.id);
 
-    let omissionList = [];
-    games.map(game => {
-        if (!compareIDs.find(compareID => {compareID === game.appid}))
-            omissionList.push(game);
-    });
+    let omissionList = games.filter(game => !compareIDs.find(id => id === game.appid));
 
     // console.log('omission List:\n', omissionList);
     return omissionList;
@@ -130,6 +126,10 @@ async function processNextBatch(startIndex) {
  * @returns {Promise<void>}
  */
 async function fetchGameDetails(id) {
+    if (appInfos.find(infosId => infosId === id)) {
+        return console.log('Duplicate Game:', id);
+    }
+
     await steam.getGameDetails(id)
         .then(async details => {
             const minimum = details.pc_requirements.minimum;
