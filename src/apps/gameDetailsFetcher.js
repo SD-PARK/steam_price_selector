@@ -126,10 +126,6 @@ async function processNextBatch(startIndex) {
  * @returns {Promise<void>}
  */
 async function fetchGameDetails(id) {
-    if (appInfos.find(infosId => infosId === id)) {
-        return console.log('Duplicate Game:', id);
-    }
-
     await steam.getGameDetails(id)
         .then(async details => {
             const minimum = details.pc_requirements.minimum;
