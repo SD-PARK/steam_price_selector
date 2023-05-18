@@ -16,8 +16,30 @@ Steam 내에는 이 수많은 게임들 중 취향에 맞는 게임을 검색하
 각 권장 사양, 최소 사양을 만족시키는 게임을 검색하는 API 서버를 구축합니다.**
 
 ## 👀 프로젝트 정보
-- ### 개발 스택
-  <img alt="Html" src ="https://img.shields.io/badge/NODEJS-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/> <img alt="Html" src ="https://img.shields.io/badge/EXPRESS-000000.svg?&style=for-the-badge&logo=Express&logoColor=white"/>
+### 개발 스택
+<img alt="Html" src ="https://img.shields.io/badge/NODEJS-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/> <img alt="Html" src ="https://img.shields.io/badge/EXPRESS-000000.svg?&style=for-the-badge&logo=Express&logoColor=white"/>
+
+## API 레퍼런스
+### 설명
+시스템 요구사항을 충족하는 Steam 게임 목록을 반환합니다.
+
+### 요청 URL
+```...```
+
+### 프로토콜
+HTTPS
+
+### HTTP 메서드
+POST
+
+### 파라미터
+파라미터|타입|필수 여부|설명
+:------|:--:|:------:|---:
+
+### 응답
+응답에 성공하면 결괏값을 JSON 형태로 반환합니다.
+속성|타입|필수 여부|설명
+:---|:--:|:------:|---:
 
 ## ✨ 주요 코드
 #### src/apps/benchmarkCrawler.js
