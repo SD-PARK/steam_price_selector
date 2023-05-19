@@ -60,9 +60,9 @@ const continueWritingGameData = async () => {
 const findOmission = async () => {
     const games = await useJSON.readJSON('games.json');
     const gameData = await useJSON.readJSON('gameData.json');
-    const compareIDs = gameData.map(app => app.id);
+    const compareIDs = new Set(gameData.map(app => app.id));
 
-    let omissionList = games.filter(game => !compareIDs.find(id => id === game.appid));
+    let omissionList = games.filter(game => !compareIDs.has(game.appid));
 
     // console.log('omission List:\n', omissionList);
     return omissionList;
@@ -152,7 +152,7 @@ async function fetchGameDetails(id) {
                 name: appNames[appIDs.indexOf(id)],
                 id: id
             });
-            if (error.message === 'Too Many Requests') throw error;
+            if (error.message === 'Too Many Requests' || error.message === 'Forbidden') throw error;
             else if (error.message === 'No app found') console.log(`Invalid app ID ${id}, skipping...`);
             else console.log(error);
         });
