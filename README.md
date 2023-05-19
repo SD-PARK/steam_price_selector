@@ -34,7 +34,32 @@ POST
 
 ### 파라미터
 파라미터|타입|필수 여부|설명
-:------|:--:|:------:|---:
+:-----:|:--:|:------:|:---
+factor|String|Y|검색어
+display|Integer|N|한 번에 표시할 검색 결과 개수 (기본 값: 10)
+▼ specs|Object|N|검색 기준이 될 사용자의 시스템 사양
+|||
+os|String|N|사용자의 OS 버전 (버전만 기입. 예) 'xp', '10')
+processor|String|N|사용자의 CPU ([Passmark 사이트 내 CPU Name 참고](https://www.cpubenchmark.net/cpu_list.php))
+memory|String|N|사용자의 RAM 용량 (단위: MB)
+graphics|String|N|사용자의 GPU ([Passmark 사이트 내 Videocard Name 참고](https://www.videocardbenchmark.net/gpu_list.php))
+storage|String|N|사용자의 남은 저장공간 (단위: MB)
+
+
+#### 예제
+```json
+{
+    "factor": "s",
+    "display": 10,
+    "specs": {
+        "os": "10",
+        "processor": "Intel Core i9-10850K @ 3.60GHz",
+        "memory": "4096",
+        "graphics": "GeForce RTX 4090",
+        "storage": "204800"
+    }
+}
+```
 
 ### 응답
 응답에 성공하면 결괏값을 JSON 형태로 반환합니다.
