@@ -19,7 +19,7 @@ Steam 내에는 이 수많은 게임들 중 취향에 맞는 게임을 검색하
 ### 개발 스택
 <img alt="Html" src ="https://img.shields.io/badge/NODEJS-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/> <img alt="Html" src ="https://img.shields.io/badge/EXPRESS-000000.svg?&style=for-the-badge&logo=Express&logoColor=white"/>
 
-## API 레퍼런스
+## 🎫 API 레퍼런스
 ### 설명
 시스템 요구사항을 충족하는 Steam 게임 목록을 반환합니다.
 
@@ -45,8 +45,7 @@ memory|String|N|사용자의 RAM 용량 (단위: MB)
 graphics|String|N|사용자의 GPU ([Passmark 사이트 내 Videocard Name 참고](https://www.videocardbenchmark.net/gpu_list.php))
 storage|String|N|사용자의 남은 저장공간 (단위: MB)
 
-
-#### 예제
+#### 코드 예제
 ```json
 {
     "factor": "s",
