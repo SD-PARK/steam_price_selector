@@ -51,6 +51,7 @@ storage|Integer|N|사용자의 남은 저장공간 (단위: MB)
 {
     "factor": "s",
     "display": 10,
+    "recommended": true,
     "specs": {
         "os": "10",
         "processor": "Intel Core i9-10850K @ 3.60GHz",
