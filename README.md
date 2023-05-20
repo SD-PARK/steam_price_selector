@@ -37,6 +37,7 @@ POST
 :-----:|:--:|:------:|:---
 factor|String|Y|검색어
 display|Integer|N|한 번에 표시할 검색 결과 개수 (기본 값: 10)
+recommended|Boolean|N|권장 사양 기준 필터링 여부 (기본 값: false)
 ▼ specs|Object|N|검색 기준이 될 사용자의 시스템 사양
 |||
 os|String|N|사용자의 OS 버전 (버전만 기입. 예) 'xp', '10')
