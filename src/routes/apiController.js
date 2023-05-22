@@ -1,6 +1,10 @@
 const useJSON = require('../apps/useJSON');
 let cpuDict, gpuDict, gameData;
 
+loadData().catch(error => {
+    console.error('Failed to load data:', error);
+});
+
 const apiController = {
     getGames: async (req, res) =>  {
         res.send('good');
@@ -46,10 +50,6 @@ const apiController = {
     }
 }
 
-loadData().catch(error => {
-    console.error('Failed to load data:', error);
-});
-
 /**
  * 데이터를 로드하는 비동기 함수입니다.
  * cpuData.json, gpuData.json, gameData.json 파일에서 데이터를 읽어와 적절한 변수에 할당합니다.
@@ -84,4 +84,4 @@ function compareOSVersions(inputVersion, requiredVersion) {
     return inputIndex >= requiredIndex;
 }
 
-module.exports = apiController
+module.exports = apiController;
