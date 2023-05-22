@@ -13,6 +13,10 @@ const PORT = config.PORT;
 // }
 // app.use(cors(corsOptions));
 
+// Body-parser
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const router = require('./src/routes/testAPI');
 app.use('/', router);
 
