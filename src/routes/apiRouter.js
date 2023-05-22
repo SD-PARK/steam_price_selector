@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const apiController = require('./apiController');
 
-router.get('/', async (req, res) => apiController.getGames);
-router.post('/', async (req, res) => apiController.postGames);
+router.get('/', apiController.getGames);
+router.post('/', apiController.postGames);
 
 module.exports = router;

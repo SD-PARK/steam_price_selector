@@ -2,11 +2,11 @@ const useJSON = require('../apps/useJSON');
 let cpuDict, gpuDict, gameData;
 
 const apiController = {
-    getGames: () => {
+    getGames: async (req, res) =>  {
         res.send('good');
     },
 
-    postGames: async () => {
+    postGames: async (req, res) => {
         const { factor = '', display = 10, recommended, specs } = req.body;
         console.log(`factor: ${factor}\ndisplay: ${display}\nspecs:`, specs ?? 0);
     
