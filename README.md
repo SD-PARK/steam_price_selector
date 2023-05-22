@@ -36,7 +36,7 @@ POST
 파라미터|타입|필수 여부|설명
 :-----:|:--:|:------:|:---
 factor|String|Y|검색어
-display|Integer|N|한 번에 표시할 검색 결과 개수 (기본 값: 10)
+display|Integer|N|한 번에 가져올 검색 결과 개수 (기본 값: -1, 음수는 모든 결과를 가져옵니다.)
 recommended|Boolean|N|권장 사양 기준 필터링 여부 (기본 값: false)
 ▼ specs|Object|N|검색 기준이 될 사용자의 시스템 사양
 |||
