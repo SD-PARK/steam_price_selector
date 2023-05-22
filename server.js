@@ -17,7 +17,7 @@ const PORT = config.PORT;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const router = require('./src/routes/testAPI');
+const router = require('./src/routes/apiRouter');
 app.use('/', router);
 
 server.listen(PORT, () => { console.log('Server listen on PORT', PORT); });
