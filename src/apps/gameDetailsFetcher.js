@@ -19,18 +19,7 @@ let cpuList = []; // CPU 리스트
  */
 const updateGameDatabase = async () => {
     await fetchAppList();
-    appInfos = await useJSON.readJSON('gameData.json');
-    const omissions = await findOmission();
-    appIDs = omissions.map(game => game.appid);
-    for (const id of omissions) {
-        if (appInfos.find((app) => {app.id === id})) {
-            console.log(`\n\n\n\n\n${id} is Duplicate value!!!!!\n\n\n\n\n`);
-            continue;
-        }
-
-        fetchGameDetails(id);
-    }
-    await useJSON.writeJSON(appInfos, 'gameData.json');
+    await continueWritingGameData();
 }
 
 /**
@@ -327,5 +316,6 @@ module.exports = {
     updateGameDatabase,
     continueWritingGameData,
     findOmission,
-    checkSingleApp
+    checkSingleApp,
+    incorrectDataFix
 }
