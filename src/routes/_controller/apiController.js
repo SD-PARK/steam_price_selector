@@ -1,4 +1,4 @@
-const useJSON = require('../apps/useJSON');
+const useJSON = require('../../apps/useJSON');
 let cpuDict, gpuDict, gameData;
 
 loadData().catch(error => {
