@@ -132,7 +132,7 @@ async function fetchGameDetails(id) {
                     recommended: recommendedRequirementsObject
                 },
                 categories: details.categories,
-                genres: details.genres
+                genres: details.genres.map(obj => {return { ...obj, id: parseInt(obj.id) };})
             });
             console.log('Push Completed! app ID', id);
         })
@@ -316,6 +316,5 @@ module.exports = {
     updateGameDatabase,
     continueWritingGameData,
     findOmission,
-    checkSingleApp,
-    incorrectDataFix
+    checkSingleApp
 }
