@@ -46,6 +46,14 @@ memory|Integer|N|사용자의 RAM 용량 (단위: MB)
 graphics|String|N|사용자의 GPU ([Passmark 사이트 내 Videocard Name 참고](https://www.videocardbenchmark.net/gpu_list.php))
 storage|Integer|N|사용자의 남은 저장공간 (단위: MB)
 
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/69437bef-dcb4-4021-b18a-9a105d855e7b" style="padding:0;" style="vertical-align: bottom">
+<details>
+<summary style="vertical-align: bottom"><img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/bfc78c7d-7d26-4e42-8a2e-89cd76b18c31" style="vertical-align: bottom"></summary>
+<div markdown="1">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/9041bed5-5162-4a78-8f41-d773625b64a3" style="vertical-align: bottom">
+</div></details>
+
+
 #### 코드 예제
 ```json
 {
