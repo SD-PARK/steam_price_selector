@@ -6,6 +6,10 @@ loadData().catch(error => {
 });
 
 const apiController = {
+    updateGameFiles: async (req, res) => {
+        await require('../apps/gameDetailsFetcher').updateGameDatabase();
+    },
+
     postGames: async (req, res) => {
         const { factor = '', display = 10, recommended, languages, categories, genres, specs } = req.body;
         
