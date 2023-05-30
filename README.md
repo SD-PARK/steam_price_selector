@@ -356,7 +356,29 @@ $ npm install
 ```
 
 ### Configuration
+To run this project successfully, you need to add the STEAM_API_KEY to the .env file. The STEAM_API_KEY is obtained from the Steam website. Here's how you can add the Steam API Key to the .env file:
 
+1. Sign up and log in to the Steam Developer site.
+
+2. To obtain the Steam API Key, follow these steps:
+   - Go to the developer page (https://steamcommunity.com/dev/apikey).
+   - Click on "Register a New Web API Key".
+   - Enter an application name, agree to the terms, and click on "Register".
+   - A Steam API Key will be generated. Save this key in a secure location.
+
+3. Create a `.env` file in the project root directory.
+
+4. Open the `.env` file in a text editor and write the following:
+
+   ```plaintext
+   STEAM_API_KEY=Enter_Your_Steam_API_Key_Here
+    ```
+
+    Replace Enter_Your_Steam_API_Key_Here with the actual Steam API Key you obtained.
+
+    Save the .env file.
+
+    Now, when you run the API server, the .env file will be automatically loaded, and you can access the Steam API Key using process.env.STEAM_API_KEY.
 
 ### Usage
 To start the API Server, run the following command:
