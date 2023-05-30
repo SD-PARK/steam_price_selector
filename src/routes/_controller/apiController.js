@@ -8,7 +8,7 @@ loadData().catch(error => {
 const apiController = {
     postGames: async (req, res) => {
         const { factor = '', display = 10, recommended, languages, categories, genres, specs } = req.body;
-    
+        
         const inputCPU = cpuDict.get(specs?.processor);
         const inputGPU = gpuDict.get(specs?.graphics);
         const gameList = []
@@ -39,10 +39,10 @@ const apiController = {
             // OS
             if (specs?.OS && !compareOSVersions(specs.OS, requirements?.OS)) continue;
             // Memory
-            const memory = !specs.memory || (specs.memory >= (requirements?.Memory ?? 0));
+            const memory = !specs?.memory || (specs.memory >= (requirements?.Memory ?? 0));
             if (!memory) continue;
             // Storage
-            const storage = !specs.storage || (specs.storage >= (requirements?.Storage ?? 0));
+            const storage = !specs?.storage || (specs.storage >= (requirements?.Storage ?? 0));
             if (!storage) continue;
             // GPU
             const gpu = !inputGPU || (inputGPU.value >= (requirements?.Graphics?.value ?? 0));
@@ -59,33 +59,71 @@ const apiController = {
 
     validateInputMiddleware: (req, res, next) => {
         const { factor, display, recommended, languages, categories, genres, specs } = req.body;
-    
-        if (typeof factor !== 'string') {
+        // factor
+        if (factor !== undefined && typeof factor !== 'string') {
             return res.status(400).json({ error: 'Invalid factor. Factor should be a string.' });
         }
-    
-        if (typeof display !== 'number') {
+        // display
+        if (display !== undefined && typeof display !== 'number') {
             return res.status(400).json({ error: 'Invalid display. Display should be a number.' });
         }
-    
-        if (typeof recommended !== 'boolean') {
+        // recommended
+        if (recommended !== undefined && typeof recommended !== 'boolean') {
             return res.status(400).json({ error: 'Invalid recommended. Recommended should be a boolean.' });
         }
-    
-        if (!Array.isArray(languages)) {
-            return res.status(400).json({ error: 'Invalid languages. Languages should be an array.' });
+        // languages
+        if (languages !== undefined) {
+            if (!Array.isArray(languages)) {
+                return res.status(400).json({ error: 'Invalid languages. Languages should be an array.' });
+            }
+            if (!languages.every((lang) => typeof lang === 'string')) {
+                return res.status(400).json({ error: 'Invalid languages. All elements in languages array should be strings.' });
+            }
         }
-    
-        if (!Array.isArray(categories)) {
-            return res.status(400).json({ error: 'Invalid categories. Categories should be an array.' });
+        // categories
+        if (categories !== undefined) {
+            if (!Array.isArray(categories)) {
+                return res.status(400).json({ error: 'Invalid categories. Categories should be an array.' });
+            }
+            if (!categories.every((category) => typeof category === 'number')) {
+                return res.status(400).json({ error: 'Invalid categories. All elements in categories array should be numbers.' });
+            }
         }
-    
-        if (!Array.isArray(genres)) {
-            return res.status(400).json({ error: 'Invalid genres. Genres should be an array.' });
+        // genres
+        if (genres !== undefined) {
+            if (!Array.isArray(genres)) {
+                return res.status(400).json({ error: 'Invalid genres. Genres should be an array.' });
+            }
+            if (!genres.every((genre) => typeof genre === 'number')) {
+                return res.status(400).json({ error: 'Invalid genres. All elements in genres array should be numbers.' });
+            }
         }
-    
-        if (typeof specs !== 'object' || specs === null) {
-            return res.status(400).json({ error: 'Invalid specs. Specs should be an object.' });
+        // specs
+        if (specs !== undefined) {
+            if (typeof specs !== 'object' || specs === null) {
+                return res.status(400).json({ error: 'Invalid specs. Specs should be an object.' });
+            }
+            // os
+            const windowsVersions = ["Vista", "7", "8", "8.1", "10", "11"];
+            if (specs.os !== undefined && !windowsVersions.includes(specs.os)) {
+                return res.status(400).json({ error: 'Invalid os. OS should only write the version of Windows.' });
+            }
+            // processor
+            if (specs.processor !== undefined && !cpuDict.has(specs.processor)) {
+                return res.status(400).json({ error: 'Invalid processor. Processor must have a specified value. Please refer to the site: https://www.cpubenchmark.net/cpu_list.php' });
+            }
+            // memory
+            if (specs.memory !== undefined && typeof specs.memory !== 'number') {
+                return res.status(400).json({ error: 'Invalid memory. Memory should be a number.' });
+            }
+            // graphics
+            if (specs.graphics !== undefined && !gpuDict.has(specs.graphics)) {
+                return res.status(400).json({ error: 'Invalid graphics. Graphics must have a specified value. Please refer to the site: https://www.videocardbenchmark.net/gpu_list.php' });
+            }
+            // storage
+            if (specs.storage !== undefined && typeof specs.storage !== 'number') {
+                return res.status(400).json({ error: 'Invalid storage. Storage should be a number.' });
+            }
         }
         
         next();
