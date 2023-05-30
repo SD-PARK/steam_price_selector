@@ -11,12 +11,10 @@ const apiController = {
     },
 
     postGames: async (req, res) => {
-        const { factor = '', display = 10, recommended, specs } = req.body;
-        console.log(`factor: ${factor}\ndisplay: ${display}\nspecs:`, specs ?? 0);
+        const { factor = '', display = 10, recommended, languages, categories, genres, specs } = req.body;
     
         const inputCPU = cpuDict.get(specs?.processor);
         const inputGPU = gpuDict.get(specs?.graphics);
-        // 남은 과제, supported_languages, categories, genres
         const gameList = []
         for (const game of gameData) {
             // display
@@ -27,6 +25,21 @@ const apiController = {
             if (!requirements) continue;
             // factor
             if (!game.name.includes(factor)) continue;
+            // supported_languages
+            if (languages) {
+                if (!game.supported_languages) continue;
+                if (!areAllValueIncluded(game.supported_languages, languages)) continue;
+            }
+            // categories
+            if (categories && game.categories) {
+                if (!game.categories) continue;
+                if (!areAllValueIncluded(game.categories.map(category => category.id), categories)) continue;
+            }
+            // genres
+            if (genres && game.genres) {
+                if (!game.genres) continue;
+                if (!areAllValueIncluded(game.genres.map(genre => genre.id), genres)) continue;
+            }
             // OS
             if (specs?.OS && !compareOSVersions(specs.OS, requirements?.OS)) continue;
             // Memory
@@ -44,8 +57,6 @@ const apiController = {
     
             gameList.push(game);
         }
-    
-        console.log(gameList);
         res.send('good');
     }
 }
@@ -82,6 +93,17 @@ function compareOSVersions(inputVersion, requiredVersion) {
     const requiredIndex = windowsVersions.indexOf(requiredVersion);
 
     return inputIndex >= requiredIndex;
+}
+
+/**
+ * targetArray의 모든 값이 sourceArray에 포함되어 있는지 확인하는 함수입니다.
+ * 
+ * @param {Array} sourceArray
+ * @param {Array} targetArray
+ * @returns {boolean} - targetArray의 모든 값이 sourceArray에 포함되어 있으면 true를 반환합니다.
+ */
+function areAllValueIncluded(sourceArray, targetArray) {
+    return targetArray.every(value => sourceArray.includes(value));
 }
 
 module.exports = apiController;
