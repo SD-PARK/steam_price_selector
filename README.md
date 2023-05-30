@@ -388,5 +388,6 @@ $ npm start
 The server will start listening on the specified port (default: 4000) and you will see the message `Server listen on PORT ${PORT}` in the console.
 
 ### API Endpoints
+GET `/update`: Update the list of new games on Steam.
 POST `/games`: Submits user PC specifications and retrieves a list of compatible games.
 Please refer to the [API documentation](#파라미터) for more details on each endpoint and the expected request and response formats.
