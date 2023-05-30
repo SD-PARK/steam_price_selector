@@ -5,13 +5,13 @@ const config = require('./config/config');
 
 const PORT = config.PORT;
 
-// 외부 도메인 접근 관련
-// const cors = require('cors');
-// let corsOptions = {
-//     origin: '*',
-//     credential: true
-// }
-// app.use(cors(corsOptions));
+// CORS
+const cors = require('cors');
+let corsOptions = {
+    origin: '*',
+    credential: true
+}
+app.use(cors(corsOptions));
 
 // Body-parser
 app.use(express.json());
