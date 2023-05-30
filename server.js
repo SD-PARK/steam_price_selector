@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const server = require('http').createServer(app);
 const config = require('./config/config');
+require('dotenv').config();
 
 const PORT = config.PORT;
 

@@ -1,5 +1,5 @@
 const SteamAPI = require('steamapi');
-const API_KEY = require('../../config/secret').STEAM_API_KEY;
+const API_KEY = process.env.STEAM_API_KEY;
 const steam = new SteamAPI(API_KEY);
 const useJSON = require('./useJSON');
 
