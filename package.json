@@ -1,5 +1,5 @@
 {
-  "name": "price_selector",
+  "name": "steam_spec_check",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -9,15 +9,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SD-PARK/steam_price_selector.git"
+    "url": "git+https://github.com/SD-PARK/steam_spec_check.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SD-PARK/steam_price_selector/issues"
+    "url": "https://github.com/SD-PARK/steam_spec_check/issues"
   },
-  "homepage": "https://github.com/SD-PARK/steam_price_selector#readme",
+  "homepage": "https://github.com/SD-PARK/steam_spec_check#readme",
   "dependencies": {
     "axios": "1.4.0",
     "cheerio": "1.0.0-rc.12",
