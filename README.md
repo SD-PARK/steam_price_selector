@@ -46,14 +46,14 @@ POST
 <img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/5474221d-f489-4c63-8220-0ca1e1f88d84">
 </div></details>
 
-<details><summary>장르 목록</summary>
-<div markdown="1">
-<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/d13d198a-fc98-4d9f-85d1-4cd2227bf004">
-</div></details>
-
 <details><summary>카테고리 목록</summary>
 <div markdown="1">
 <img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/4a295468-bc8f-4eb8-813e-925a0c864109">
+</div></details>
+
+<details><summary>장르 목록</summary>
+<div markdown="1">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/d13d198a-fc98-4d9f-85d1-4cd2227bf004">
 </div></details>
 
 [CPU 목록](https://www.cpubenchmark.net/cpu_list.php)
