@@ -62,7 +62,7 @@ POST
 
 [GPU 목록](https://www.videocardbenchmark.net/gpu_list.php)
 
-#### 코드 예제
+### 코드 예제
 ```json
 {
     "factor": "magicka",
