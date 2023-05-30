@@ -6,10 +6,6 @@ loadData().catch(error => {
 });
 
 const apiController = {
-    getGames: async (req, res) =>  {
-        res.send('good');
-    },
-
     postGames: async (req, res) => {
         const { factor = '', display = 10, recommended, languages, categories, genres, specs } = req.body;
     
@@ -24,7 +20,7 @@ const apiController = {
             if (recommended) requirements = game?.requirements?.recommended;
             if (!requirements) continue;
             // factor
-            if (!game.name.includes(factor)) continue;
+            if (!game.name.toLowerCase().includes(factor.toLowerCase())) continue;
             // supported_languages
             if (languages) {
                 if (!game.supported_languages) continue;
@@ -57,7 +53,42 @@ const apiController = {
     
             gameList.push(game);
         }
-        res.send('good');
+        res.status(200).json(gameList);
+        console.log('Game search results returned successfully.');
+    },
+
+    validateInputMiddleware: (req, res, next) => {
+        const { factor, display, recommended, languages, categories, genres, specs } = req.body;
+    
+        if (typeof factor !== 'string') {
+            return res.status(400).json({ error: 'Invalid factor. Factor should be a string.' });
+        }
+    
+        if (typeof display !== 'number') {
+            return res.status(400).json({ error: 'Invalid display. Display should be a number.' });
+        }
+    
+        if (typeof recommended !== 'boolean') {
+            return res.status(400).json({ error: 'Invalid recommended. Recommended should be a boolean.' });
+        }
+    
+        if (!Array.isArray(languages)) {
+            return res.status(400).json({ error: 'Invalid languages. Languages should be an array.' });
+        }
+    
+        if (!Array.isArray(categories)) {
+            return res.status(400).json({ error: 'Invalid categories. Categories should be an array.' });
+        }
+    
+        if (!Array.isArray(genres)) {
+            return res.status(400).json({ error: 'Invalid genres. Genres should be an array.' });
+        }
+    
+        if (typeof specs !== 'object' || specs === null) {
+            return res.status(400).json({ error: 'Invalid specs. Specs should be an object.' });
+        }
+        
+        next();
     }
 }
 
