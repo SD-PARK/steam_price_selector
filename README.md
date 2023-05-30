@@ -24,7 +24,7 @@ Steam 내에는 이 수많은 게임들 중 취향에 맞는 게임을 검색하
 시스템 요구사항을 충족하는 Steam 게임 목록을 반환합니다.
 
 ### 요청 URL
-```...```
+```http://ec2-13-209-21-60.ap-northeast-2.compute.amazonaws.com:4000/games```
 
 ### 프로토콜
 HTTPS
