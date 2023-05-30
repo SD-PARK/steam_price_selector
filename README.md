@@ -211,7 +211,7 @@ const continueWritingGameData = async () => {
  * !!호출하기 전 반드시 appIDs, appNames 변수를 초기화해주어야 합니다.
  *
  * @param {number} startIndex - 일괄 처리의 시작 인덱스
- * @returns {Promise<Array}
+ * @returns {Promise<Array>}
  */
 async function processNextBatch(startIndex) {
     const endIndex = Math.min(startIndex + batchSize, appIDs.length);
