@@ -40,7 +40,7 @@ POST
 <img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/f05954ee-4aa9-4d1b-b3cb-7c74b44be5b3" valign="bottom">
 </div></details>
 
-#### 파라미터 참고 사항
+#### 일부 파라미터 참고 사항
 <details><summary>언어 목록</summary>
 <div markdown="1">
 <img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/5474221d-f489-4c63-8220-0ca1e1f88d84">
