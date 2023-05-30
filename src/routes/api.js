@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const apiController = require('./_controller/apiController');
 
-router.get('/', apiController.getGames);
-router.post('/', apiController.postGames);
+router.post('/games', apiController.validateInputMiddleware, apiController.postGames);
 
 module.exports = router;
