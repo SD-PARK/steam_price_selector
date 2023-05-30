@@ -132,7 +132,7 @@ async function fetchGameDetails(id) {
                     recommended: recommendedRequirementsObject
                 },
                 categories: details.categories,
-                genres: details.genres.map(obj => {return { ...obj, id: parseInt(obj.id) };})
+                genres: details.genres ? details.genres.map(obj => {return { ...obj, id: Number(obj.id) };}) : []
             });
             console.log('Push Completed! app ID', id);
         })
