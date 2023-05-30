@@ -33,11 +33,11 @@ HTTPS
 POST
 
 ### 파라미터
-<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/abade43f-4af2-4ea7-b205-4e3370dc2861" valign="bottom">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/abade43f-4af2-4ea7-b205-4e3370dc2861" valign="bottom"/>
 <details>
 <summary><img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/7f8c2bcb-82df-4e1d-b03b-bbdb26a45757" valign="bottom"></summary>
 <div markdown="1">
-<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/f05954ee-4aa9-4d1b-b3cb-7c74b44be5b3" valign="bottom">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/f05954ee-4aa9-4d1b-b3cb-7c74b44be5b3" valign="bottom"/>
 </div></details>
 
 ### 참고 사항
@@ -211,7 +211,7 @@ const continueWritingGameData = async () => {
  * !!호출하기 전 반드시 appIDs, appNames 변수를 초기화해주어야 합니다.
  *
  * @param {number} startIndex - 일괄 처리의 시작 인덱스
- * @returns {Promise<Array>}
+ * @returns {Promise<Array}
  */
 async function processNextBatch(startIndex) {
     const endIndex = Math.min(startIndex + batchSize, appIDs.length);
@@ -225,12 +225,13 @@ async function processNextBatch(startIndex) {
     }
 
     // 'fetchGameDetails()' 함수를 통해 API를 호출해 게임 세부 정보를 불러와 appInfos 변수에 저장합니다.
-    const promises = batchIDs.map(id => fetchGameDetails(id))
+    const promises = batchIDs.map(id => fetchGameDetails(id));
     return Promise.all(promises);
-};
+}
 ```
+    
 </div></details>
-
+    
 'steamapi' 모듈을 통해 **Steam 내 게임들의 세부 데이터**를 받아옵니다.
 
 전체 게임 리스트는 한 번에 요청할 수 있지만,
@@ -329,3 +330,41 @@ const apiController = {
 유효성 검사 항목을 충족하는 경우, 'next()' 함수를 호출하여 **다음 미들웨어로 이동**합니다.
 
 ---
+
+## 💬 실행 방법
+
+### Requirements
+For building and running the applicationyou need:
+- Node.js (v16 or above)
+- npm (Node Package Manager)
+
+### Installation
+
+1. Clone the repository:
+```bash
+$ git clone https://github.com/SD-PARK/steam_spec_check.git
+```
+
+2. Navigate to the project directory:
+```bash
+$ cd steam_spec_check
+```
+
+3. Install the dependencies:
+```bash
+$ npm install
+```
+
+### Configuration
+
+
+### Usage
+To start the API Server, run the following command:
+```bash
+$ npm start
+```
+The server will start listening on the specified port (default: 4000) and you will see the message `Server listen on PORT ${PORT}` in the console.
+
+### API Endpoints
+POST `/games`: Submits user PC specifications and retrieves a list of compatible games.
+Please refer to the [API documentation](#파라미터) for more details on each endpoint and the expected request and response formats.
