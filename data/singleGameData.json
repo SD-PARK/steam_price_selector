@@ -1,0 +1,18 @@
+[
+    {
+        "id": 1857230,
+        "is_free": false,
+        "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/1857230/header.jpg?t=1643627884",
+        "requirements": {
+            "minimum": {
+                "OS": {
+                    "version": "",
+                    "bit": "64"
+                },
+                "Memory": 0,
+                "Storage": 100
+            },
+            "recommended": {}
+        }
+    }
+]
