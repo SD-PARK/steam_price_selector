@@ -41,7 +41,7 @@ POST
 </div></details>
 
 ### 참고 사항
-일부 파라미터에서 사용하는 코드 값은 다음과 같습니다.
+일부 파라미터에서 사용하는 코드 값은 다음과 같습니다:
 
 <details><summary>언어 목록</summary>
 <div markdown="1">
