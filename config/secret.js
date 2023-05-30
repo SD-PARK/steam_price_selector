@@ -1,3 +1,0 @@
-module.exports = {
-    STEAM_API_KEY: 'C08469809865A0994151DDA581D0C5C1',
-}

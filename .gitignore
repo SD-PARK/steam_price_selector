@@ -1,3 +1,2 @@
 node_modules/
-# config/secret.js
-# src/apps/_steamData.js
+config/secret.js
