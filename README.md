@@ -333,63 +333,61 @@ const apiController = {
 
 ## 💬 실행 방법
 
-### Requirements
-For building and running the applicationyou need:
+### 요구사항
 - Node.js (v16 or above)
 - npm (Node Package Manager)
 
-### Installation
-
-1. Clone the repository:
+### 설치
+1. 레파지토리를 클론합니다:
 ```bash
 $ git clone https://github.com/SD-PARK/steam_spec_check.git
 ```
 
-2. Navigate to the project directory:
+2. 프로젝트 디렉토리로 이동합니다:
 ```bash
 $ cd steam_spec_check
 ```
 
-3. Install the dependencies:
+3. 필요한 패키지를 설치합니다:
 ```bash
 $ npm install
 ```
 
-### Configuration
-To run this project successfully, you need to add the STEAM_API_KEY to the .env file. The STEAM_API_KEY is obtained from the Steam website. Here's how you can add the Steam API Key to the .env file:
+### 환경 설정
+이 프로젝트는 Steam API를 사용하므로, Steam API Key가 필요합니다. Steam API Key는 Steam 개발자 사이트에서 발급받아야 합니다. 아래는 .env 파일에 Steam API Key를 추가하는 방법입니다:
 
-1. Sign up and log in to the Steam Developer site.
+1. Steam 개발자 사이트에 가입하고 로그인합니다.
 
-2. To obtain the Steam API Key, follow these steps:
-   - Go to the developer page (https://steamcommunity.com/dev/apikey).
-   - Click on "Register a New Web API Key".
-   - Enter an application name, agree to the terms, and click on "Register".
-   - A Steam API Key will be generated. Save this key in a secure location.
+2. Steam API Key를 발급받기 위해 다음 단계를 진행합니다:
+   - 개발자 페이지로 이동합니다 (https://steamcommunity.com/dev/apikey).
+   - "Register a New Web API Key" 버튼을 클릭합니다.
+   - 애플리케이션 이름을 입력하고 약관에 동의한 후 "Register" 버튼을 클릭합니다.
+   - Steam API Key가 생성됩니다. 이 키를 안전한 곳에 저장해둡니다.
 
-3. Create a `.env` file in the project root directory.
+3. 프로젝트 루트 디렉토리에 `.env` 파일을 생성합니다.
 
-4. Open the `.env` file in a text editor and write the following:
+4. `.env` 파일을 텍스트 편집기로 열고 다음과 같이 작성합니다:
 
    ```plaintext
    STEAM_API_KEY=Enter_Your_Steam_API_Key_Here
     ```
 
-    Replace Enter_Your_Steam_API_Key_Here with the actual Steam API Key you obtained.
+    위 줄에서 `Enter_Your_Steam_API_Key_Here` 부분을 실제로 발급받은 Steam API Key로 대체합니다.
 
-    Save the .env file.
+5. .env 파일을 저장합니다.
 
-    Now, when you run the API server, the .env file will be automatically loaded, and you can access the Steam API Key using process.env.STEAM_API_KEY.
+6. 이제 API 서버를 실행할 때 .env 파일이 자동으로 로드되고, process.env.STEAM_API_KEY를 통해 Steam API Key에 액세스할 수 있습니다.
 
-### Usage
-To start the API Server, run the following command:
+### 사용 방법
+다음 명령을 실행해 API 서버를 시작할 수 있습니다:
 ```bash
 $ npm start
 ```
-The server will start listening on the specified port (default: 4000) and you will see the message `Server listen on PORT ${PORT}` in the console.
+API 서버는 기본적으로 4000번 포트에서 실행됩니다. 서버가 실행되면 콘솔에 `Server listen on PORT ${PORT}`라는 메시지가 표시됩니다.
 
-### API Endpoints
-GET `/update`: Update the list of new games on Steam.
+### API 엔드포인트
+GET `/update`: Steam에서 새로운 게임 목록을 업데이트합니다.
     
-POST `/games`: Submits user PC specifications and retrieves a list of compatible games.
+POST `/games`: 사용자의 PC 사양을 기반으로 호환되는 게임 목록을 가져옵니다.
 
-Please refer to the [API documentation](#파라미터) for more details on each endpoint and the expected request and response formats.
+각 엔드포인트 및 요청과 응답 형식에 대한 자세한 내용은 [API 문서](#파라미터)를 참조하세요.
