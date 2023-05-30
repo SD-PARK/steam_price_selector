@@ -378,7 +378,7 @@ $ npm install
 
 6. 이제 API 서버를 실행할 때 .env 파일이 자동으로 로드되고, process.env.STEAM_API_KEY를 통해 Steam API Key에 액세스할 수 있습니다.
 
-### 사용 방법
+### 실행 방법
 다음 명령을 실행해 API 서버를 시작할 수 있습니다:
 ```bash
 $ npm start
