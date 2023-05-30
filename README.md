@@ -33,18 +33,32 @@ HTTPS
 POST
 
 ### 파라미터
-파라미터|타입|필수 여부|설명
-:-----:|:--:|:------:|:---
-factor|String|N|검색어 (기본 값: '')
-display|Integer|N|한 번에 가져올 검색 결과 개수 (기본 값: 10, 음수일 경우 모든 결과를 가져옵니다.)
-recommended|Boolean|N|권장 사양 기준 필터링 여부 (기본 값: false)
-▼ specs|Object|N|검색 기준이 될 사용자의 시스템 사양
-|||
-os|String|N|사용자의 OS 버전 (버전만 기입. 예) 'xp', '10')
-processor|String|N|사용자의 CPU ([Passmark 사이트 내 CPU Name 참고](https://www.cpubenchmark.net/cpu_list.php))
-memory|Integer|N|사용자의 RAM 용량 (단위: MB)
-graphics|String|N|사용자의 GPU ([Passmark 사이트 내 Videocard Name 참고](https://www.videocardbenchmark.net/gpu_list.php))
-storage|Integer|N|사용자의 남은 저장공간 (단위: MB)
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/abade43f-4af2-4ea7-b205-4e3370dc2861" valign="bottom">
+<details>
+<summary><img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/7f8c2bcb-82df-4e1d-b03b-bbdb26a45757" valign="bottom"></summary>
+<div markdown="1">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/f05954ee-4aa9-4d1b-b3cb-7c74b44be5b3" valign="bottom">
+</div></details>
+
+#### 일부 파라미터 참고 사항
+<details><summary>언어 목록</summary>
+<div markdown="1">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/5474221d-f489-4c63-8220-0ca1e1f88d84">
+</div></details>
+
+<details><summary>카테고리 목록</summary>
+<div markdown="1">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/4a295468-bc8f-4eb8-813e-925a0c864109">
+</div></details>
+
+<details><summary>장르 목록</summary>
+<div markdown="1">
+<img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/d13d198a-fc98-4d9f-85d1-4cd2227bf004">
+</div></details>
+
+[CPU 목록](https://www.cpubenchmark.net/cpu_list.php)
+
+[GPU 목록](https://www.videocardbenchmark.net/gpu_list.php)
 
 #### 코드 예제
 ```json
