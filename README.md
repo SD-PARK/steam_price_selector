@@ -40,7 +40,9 @@ POST
 <img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/f05954ee-4aa9-4d1b-b3cb-7c74b44be5b3" valign="bottom">
 </div></details>
 
-#### 일부 파라미터 참고 사항
+### 참고 사항
+일부 파라미터에서 사용하는 코드 값은 다음과 같습니다.
+
 <details><summary>언어 목록</summary>
 <div markdown="1">
 <img src="https://github.com/SD-PARK/steam_spec_check/assets/97375357/5474221d-f489-4c63-8220-0ca1e1f88d84">
@@ -63,13 +65,16 @@ POST
 #### 코드 예제
 ```json
 {
-    "factor": "s",
-    "display": 10,
+    "factor": "magicka",
+    "display": 1,
     "recommended": true,
+    "languages": ["English"],
+    "categories": [2, 28],
+    "genres": [1],
     "specs": {
         "os": "10",
         "processor": "Intel Core i9-10850K @ 3.60GHz",
-        "memory": 4096,
+        "memory": 8192,
         "graphics": "GeForce RTX 4090",
         "storage": 204800
     }
@@ -78,11 +83,54 @@ POST
 
 ### 응답
 응답에 성공하면 결괏값을 JSON 형태로 반환합니다.
-속성|타입|필수 여부|설명
-:---|:--:|:------:|---:
+
+![response](https://github.com/SD-PARK/steam_spec_check/assets/97375357/1781d1e8-324c-4f4e-8e5e-4073ab2ae12f)
+
+<details><summary><h3>응답 예</h3></summary>
+<div markdown="1">
+
+``` json
+[
+    {
+        "name": "Magicka 2: Ice, Death and Fury",
+        "id": 414651,
+        "is_free": false,
+        "supported_languages": ["English", "French", "Italian", "German", "Spanish - Spain", "Polish", "Portuguese - Brazil", "Russian"],
+        "header_image": "https://cdn.akamai.steamstatic.com/steam/apps/414651/header.jpg?t=1589892038",
+        "requirements": {
+            "minimum": {
+                "OS": {"version": "7", "bit": "64"},
+                "Memory": 2048,
+                "Graphics": {"name": "Radeon HD 5850", "value": 1978},
+                "Storage": 3072
+            },
+            "recommended": {
+                "OS": {"version": "", "bit": "64"},
+                "Memory": 4096,
+                "Graphics": {"name": "Radeon HD 6670", "value": 734},
+                "Storage": 7168
+            }
+        },
+        "categories": [
+            {"id": 2, "description": "Single-player"}, 
+            {"id": 1, "description": "Multi-player"}, 
+            {"id": 9, "description": "Co-op"}, 
+            {"id": 24, "description": "Shared/Split Screen"}, 
+            {"id": 21, "description": "Downloadable Content"}, 
+            {"id": 22, "description": "Steam Achievements"}, 
+            {"id": 28, "description": "Full controller support"}, 
+            {"id": 29, "description": "Steam Trading Cards"}
+        ],
+        "genres": [{"id": 1, "description": "Action"}, {"id": 25, "description": "Adventure"}]
+    }
+]
+```
+</div></details>
 
 ## ✨ 주요 코드
-#### src/apps/benchmarkCrawler.js
+<details><summary><h4>src/apps/benchmarkCrawler.js</h4></summary>
+<div markdown="1">
+
 ```js
 async function updateData(url, fileName) {
     try {
@@ -116,12 +164,15 @@ module.exports = {
     }
 }
 ```
+</div></details>
 벤치마크 점수 데이터를 제공하는 PassMark 사이트에서 모든 하드웨어의 이름과 벤치마크 점수를 **크롤링**해 **JSON 형태로 저장**합니다.
 
 해당 데이터는 추후 **사용자 PC 성능와 각 게임별 요구 성능 간의 비교**를 위해 사용합니다.
 
 ---
-#### src/apps/gameDetailsFetcher.js
+<details><summary><h4>src/apps/gameDetailsFetcher.js</h4></summary>
+<div markdown="1">
+
 ```js
 const batchSize = 200; // 한 번에 처리할 게임 개수
 const interval = (5 * 60 * 1000) + 1000; // API 호출 간격 (밀리초 단위)
@@ -177,6 +228,7 @@ async function processNextBatch(startIndex) {
     return Promise.all(promises);
 };
 ```
+</div></details>
 'steamapi' 모듈을 통해 **Steam 내 게임들의 세부 데이터**를 받아옵니다.
 
 전체 게임 리스트는 한번에 요청할 수 있지만, 게임 세부 데이터(시스템 요구 사항, 카테고리 등)는 **5분에 200번**으로 API 호출에 제한이 있기 때문에, 미리 전체 게임 리스트를 JSON 형태로 저장해둔 뒤, 해당 데이터를 바탕으로 **200개 씩 나누어** 게임의 세부 데이터를 호출합니다.
@@ -186,5 +238,94 @@ async function processNextBatch(startIndex) {
 'Promise.all'과 'map' 함수를 사용해 배열을 순회하면 각 요소는 비동기적으로 처리할 수 있어도 **내부적으로는 병렬적으로 처리**되어 appInfos 배열에 push 되는 순서를 보장할 수 없게 됩니다.
 
 따라서 전체 게임 리스트(game.json)와 세부 데이터(gameData.json)의 **배열 순서를 보장**하기 위해 'for...of'를 사용해 API를 호출했습니다. -->
+
+---
+<details><summary><h4>src/routes/_controller/apiController.js</h4></summary>
+<div markdown="1">
+
+```js
+const apiController = {
+    validateInputMiddleware: (req, res, next) => {
+        const { factor, display, recommended, languages, categories, genres, specs } = req.body;
+        // factor
+        if (factor !== undefined && typeof factor !== 'string') {
+            return res.status(400).json({ error: 'Invalid factor. Factor should be a string.' });
+        }
+        // display
+        if (display !== undefined && typeof display !== 'number') {
+            return res.status(400).json({ error: 'Invalid display. Display should be a number.' });
+        }
+        // recommended
+        if (recommended !== undefined && typeof recommended !== 'boolean') {
+            return res.status(400).json({ error: 'Invalid recommended. Recommended should be a boolean.' });
+        }
+        // languages
+        if (languages !== undefined) {
+            if (!Array.isArray(languages)) {
+                return res.status(400).json({ error: 'Invalid languages. Languages should be an array.' });
+            }
+            if (!languages.every((lang) => typeof lang === 'string')) {
+                return res.status(400).json({ error: 'Invalid languages. All elements in languages array should be strings.' });
+            }
+        }
+        // categories
+        if (categories !== undefined) {
+            if (!Array.isArray(categories)) {
+                return res.status(400).json({ error: 'Invalid categories. Categories should be an array.' });
+            }
+            if (!categories.every((category) => typeof category === 'number')) {
+                return res.status(400).json({ error: 'Invalid categories. All elements in categories array should be numbers.' });
+            }
+        }
+        // genres
+        if (genres !== undefined) {
+            if (!Array.isArray(genres)) {
+                return res.status(400).json({ error: 'Invalid genres. Genres should be an array.' });
+            }
+            if (!genres.every((genre) => typeof genre === 'number')) {
+                return res.status(400).json({ error: 'Invalid genres. All elements in genres array should be numbers.' });
+            }
+        }
+        // specs
+        if (specs !== undefined) {
+            if (typeof specs !== 'object' || specs === null) {
+                return res.status(400).json({ error: 'Invalid specs. Specs should be an object.' });
+            }
+            // os
+            const windowsVersions = ["Vista", "7", "8", "8.1", "10", "11"];
+            if (specs.os !== undefined && !windowsVersions.includes(specs.os)) {
+                return res.status(400).json({ error: 'Invalid os. OS should only write the version of Windows.' });
+            }
+            // processor
+            if (specs.processor !== undefined && !cpuDict.has(specs.processor)) {
+                return res.status(400).json({ error: 'Invalid processor. Processor must have a specified value. Please refer to the site: https://www.cpubenchmark.net/cpu_list.php' });
+            }
+            // memory
+            if (specs.memory !== undefined && typeof specs.memory !== 'number') {
+                return res.status(400).json({ error: 'Invalid memory. Memory should be a number.' });
+            }
+            // graphics
+            if (specs.graphics !== undefined && !gpuDict.has(specs.graphics)) {
+                return res.status(400).json({ error: 'Invalid graphics. Graphics must have a specified value. Please refer to the site: https://www.videocardbenchmark.net/gpu_list.php' });
+            }
+            // storage
+            if (specs.storage !== undefined && typeof specs.storage !== 'number') {
+                return res.status(400).json({ error: 'Invalid storage. Storage should be a number.' });
+            }
+        }
+        
+        next();
+    }
+}
+```
+</div></details>
+
+**요청 본문**에 대한 **유효성 검사**를 진행하는 미들웨어입니다.
+
+입력받은 값이 유효하지 않을 경우, **오류 응답을 반환**합니다.
+
+오류 응답은 JSON 형식으로 `{ error: '오류 메시지' }`와 같이 구성되며, 상태 코드 400으로 설정됩니다.
+
+유효성 검사 항목을 충족하는 경우, 'next()' 함수를 호출하여 **다음 미들웨어로 이동**합니다.
 
 ---
