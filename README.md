@@ -335,23 +335,23 @@ const apiController = {
 - npm (Node Package Manager)
 
 ### 설치
-1. 레파지토리를 클론합니다:
+1. 레파지토리를 클론합니다.
 ```bash
 $ git clone https://github.com/SD-PARK/steam_spec_check.git
 ```
 
-2. 프로젝트 디렉토리로 이동합니다:
+2. 프로젝트 디렉토리로 이동합니다.
 ```bash
 $ cd steam_spec_check
 ```
 
-3. 필요한 패키지를 설치합니다:
+3. 필요한 패키지를 설치합니다.
 ```bash
 $ npm install
 ```
 
 ### 환경 설정
-이 프로젝트는 Steam API를 사용하므로, Steam API Key가 필요합니다. Steam API Key는 Steam 개발자 사이트에서 발급받아야 합니다. 아래는 .env 파일에 Steam API Key를 추가하는 방법입니다:
+이 프로젝트는 Steam API를 사용하므로, Steam API Key가 필요합니다. Steam API Key는 Steam 개발자 사이트에서 발급받아야 합니다. 아래는 .env 파일에 Steam API Key를 추가하는 방법입니다.
 
 1. Steam 개발자 사이트에 가입하고 로그인합니다.
 
@@ -363,7 +363,7 @@ $ npm install
 
 3. 프로젝트 루트 디렉토리에 `.env` 파일을 생성합니다.
 
-4. `.env` 파일을 텍스트 편집기로 열고 다음과 같이 작성합니다:
+4. `.env` 파일을 텍스트 편집기로 열고 다음과 같이 작성합니다.
 
    ```plaintext
    STEAM_API_KEY=Enter_Your_Steam_API_Key_Here
@@ -376,7 +376,7 @@ $ npm install
 6. 이제 API 서버를 실행할 때 .env 파일이 자동으로 로드되고, process.env.STEAM_API_KEY를 통해 Steam API Key에 액세스할 수 있습니다.
 
 ### 실행 방법
-다음 명령을 실행해 API 서버를 시작할 수 있습니다:
+다음 명령을 실행해 API 서버를 시작할 수 있습니다.
 ```bash
 $ npm start
 ```
