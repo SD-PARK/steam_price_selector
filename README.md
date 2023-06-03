@@ -86,9 +86,7 @@ POST
 
 ![response](https://github.com/SD-PARK/steam_spec_check/assets/97375357/1781d1e8-324c-4f4e-8e5e-4073ab2ae12f)
 
-<details><summary><h3>응답 예</h3></summary>
-<div markdown="1">
-
+### 응답 예
 ``` json
 [
     {
@@ -125,7 +123,6 @@ POST
     }
 ]
 ```
-</div></details>
 
 ## ✨ 주요 코드
 <details><summary><h4>src/apps/benchmarkCrawler.js</h4></summary>
