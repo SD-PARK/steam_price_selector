@@ -1,5 +1,5 @@
 # steam_spec_check
-PC 스펙(OS, CPU, GPU 등)을 입력받아 각 권장 사양, 최소 사양을 만족시키는 Steam 게임을 검색하는 API 서버
+PC 사양(OS, CPU, GPU 등)을 입력받아 시스템 요구사항을 만족시키는 Steam 게임을 검색하는 API 서버
 
 ## 🎉 프로젝트 소개
 세계 최대 규모의 전자 소프트웨어 유통망인 **Steam**에는 약 5만 개가 넘는 게임들이 있습니다.
@@ -17,7 +17,68 @@ Steam 내에는 이 수많은 게임들 중 취향에 맞는 게임을 검색하
 
 ## 👀 프로젝트 정보
 ### 개발 스택
-<img alt="Html" src ="https://img.shields.io/badge/NODEJS-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/> <img alt="Html" src ="https://img.shields.io/badge/EXPRESS-000000.svg?&style=for-the-badge&logo=Express&logoColor=white"/>
+<img src ="https://img.shields.io/badge/NODEJS-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/> <img src ="https://img.shields.io/badge/EXPRESS-000000.svg?&style=for-the-badge&logo=Express&logoColor=white"/> <img src ="https://img.shields.io/badge/STEAMAPI-000000.svg?&style=for-the-badge&logo=Steam&logoColor=white"/>
+
+## 💬 실행 방법
+
+### 요구사항
+- Node.js (v16 or above)
+- npm (Node Package Manager)
+
+### 설치
+1. 레파지토리를 클론합니다.
+```bash
+$ git clone https://github.com/SD-PARK/steam_spec_check.git
+```
+
+2. 프로젝트 디렉토리로 이동합니다.
+```bash
+$ cd steam_spec_check
+```
+
+3. 필요한 패키지를 설치합니다.
+```bash
+$ npm install
+```
+
+### 환경 설정
+이 프로젝트는 Steam API를 사용하므로, Steam API Key가 필요합니다. Steam API Key는 Steam 개발자 사이트에서 발급받아야 합니다. 아래는 .env 파일에 Steam API Key를 추가하는 방법입니다.
+
+1. Steam 개발자 사이트에 가입하고 로그인합니다.
+
+2. Steam API Key를 발급받기 위해 다음 단계를 진행합니다:
+   - 개발자 페이지로 이동합니다 (https://steamcommunity.com/dev/apikey).
+   - "Register a New Web API Key" 버튼을 클릭합니다.
+   - 애플리케이션 이름을 입력하고 약관에 동의한 후 "Register" 버튼을 클릭합니다.
+   - Steam API Key가 생성됩니다. 이 키를 안전한 곳에 저장해둡니다.
+
+3. 프로젝트 루트 디렉토리에 `.env` 파일을 생성합니다.
+
+4. `.env` 파일을 텍스트 편집기로 열고 다음과 같이 작성합니다.
+
+   ```plaintext
+   STEAM_API_KEY=Enter_Your_Steam_API_Key_Here
+    ```
+
+    위 줄에서 `Enter_Your_Steam_API_Key_Here` 부분을 실제로 발급받은 Steam API Key로 대체합니다.
+
+5. .env 파일을 저장합니다.
+
+6. 이제 API 서버를 실행할 때 .env 파일이 자동으로 로드되고, process.env.STEAM_API_KEY를 통해 Steam API Key에 액세스할 수 있습니다.
+
+### 실행 방법
+다음 명령을 실행해 API 서버를 시작할 수 있습니다.
+```bash
+$ npm start
+```
+API 서버는 기본적으로 4000번 포트에서 실행됩니다. 서버가 실행되면 콘솔에 `Server listen on PORT ${PORT}`라는 메시지가 표시됩니다.
+
+### API 엔드포인트
+GET `/update`: Steam에서 새로운 게임 목록을 업데이트합니다.
+    
+POST `/games`: 사용자의 PC 사양을 기반으로 호환되는 게임 목록을 가져옵니다.
+
+각 엔드포인트 및 요청과 응답 형식에 대한 자세한 내용은 [API 문서](#파라미터)를 참조하세요.
 
 ## 🎫 API 레퍼런스
 ### 설명
@@ -86,9 +147,7 @@ POST
 
 ![response](https://github.com/SD-PARK/steam_spec_check/assets/97375357/1781d1e8-324c-4f4e-8e5e-4073ab2ae12f)
 
-<details><summary><h3>응답 예</h3></summary>
-<div markdown="1">
-
+### 응답 예
 ``` json
 [
     {
@@ -125,7 +184,6 @@ POST
     }
 ]
 ```
-</div></details>
 
 ## ✨ 주요 코드
 <details><summary><h4>src/apps/benchmarkCrawler.js</h4></summary>
@@ -330,64 +388,3 @@ const apiController = {
 유효성 검사 항목을 충족하는 경우, 'next()' 함수를 호출하여 **다음 미들웨어로 이동**합니다.
 
 ---
-
-## 💬 실행 방법
-
-### 요구사항
-- Node.js (v16 or above)
-- npm (Node Package Manager)
-
-### 설치
-1. 레파지토리를 클론합니다:
-```bash
-$ git clone https://github.com/SD-PARK/steam_spec_check.git
-```
-
-2. 프로젝트 디렉토리로 이동합니다:
-```bash
-$ cd steam_spec_check
-```
-
-3. 필요한 패키지를 설치합니다:
-```bash
-$ npm install
-```
-
-### 환경 설정
-이 프로젝트는 Steam API를 사용하므로, Steam API Key가 필요합니다. Steam API Key는 Steam 개발자 사이트에서 발급받아야 합니다. 아래는 .env 파일에 Steam API Key를 추가하는 방법입니다:
-
-1. Steam 개발자 사이트에 가입하고 로그인합니다.
-
-2. Steam API Key를 발급받기 위해 다음 단계를 진행합니다:
-   - 개발자 페이지로 이동합니다 (https://steamcommunity.com/dev/apikey).
-   - "Register a New Web API Key" 버튼을 클릭합니다.
-   - 애플리케이션 이름을 입력하고 약관에 동의한 후 "Register" 버튼을 클릭합니다.
-   - Steam API Key가 생성됩니다. 이 키를 안전한 곳에 저장해둡니다.
-
-3. 프로젝트 루트 디렉토리에 `.env` 파일을 생성합니다.
-
-4. `.env` 파일을 텍스트 편집기로 열고 다음과 같이 작성합니다:
-
-   ```plaintext
-   STEAM_API_KEY=Enter_Your_Steam_API_Key_Here
-    ```
-
-    위 줄에서 `Enter_Your_Steam_API_Key_Here` 부분을 실제로 발급받은 Steam API Key로 대체합니다.
-
-5. .env 파일을 저장합니다.
-
-6. 이제 API 서버를 실행할 때 .env 파일이 자동으로 로드되고, process.env.STEAM_API_KEY를 통해 Steam API Key에 액세스할 수 있습니다.
-
-### 실행 방법
-다음 명령을 실행해 API 서버를 시작할 수 있습니다:
-```bash
-$ npm start
-```
-API 서버는 기본적으로 4000번 포트에서 실행됩니다. 서버가 실행되면 콘솔에 `Server listen on PORT ${PORT}`라는 메시지가 표시됩니다.
-
-### API 엔드포인트
-GET `/update`: Steam에서 새로운 게임 목록을 업데이트합니다.
-    
-POST `/games`: 사용자의 PC 사양을 기반으로 호환되는 게임 목록을 가져옵니다.
-
-각 엔드포인트 및 요청과 응답 형식에 대한 자세한 내용은 [API 문서](#파라미터)를 참조하세요.
