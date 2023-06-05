@@ -17,7 +17,7 @@ Steam 내에는 이 수많은 게임들 중 취향에 맞는 게임을 검색하
 
 ## 👀 프로젝트 정보
 ### 개발 스택
-<img src ="https://img.shields.io/badge/NODEJS-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/> <img src ="https://img.shields.io/badge/EXPRESS-000000.svg?&style=for-the-badge&logo=Express&logoColor=white"/>
+<img src ="https://img.shields.io/badge/NODEJS-339933.svg?&style=for-the-badge&logo=Node.js&logoColor=white"/> <img src ="https://img.shields.io/badge/EXPRESS-000000.svg?&style=for-the-badge&logo=Express&logoColor=white"/> <img src ="https://img.shields.io/badge/STEAMAPI-000000.svg?&style=for-the-badge&logo=Steam&logoColor=white"/>
 
 ## 💬 실행 방법
 
